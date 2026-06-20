@@ -57,65 +57,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 // 数据加载
 // ============================================
 async function loadData() {
-  try {
-    const response = await fetch('./data/cases.json');
-    if (!response.ok) throw new Error('Failed to fetch data');
-    appData = await response.json();
-  } catch (error) {
-    console.warn('无法加载外部数据，使用默认数据');
-    // 使用内联默认数据（用于演示）
-    appData = {
-      brand: {
-        logo: '',
-        name: '臻品定制',
-        slogan: '为每个家庭，定制专属收纳空间'
-      },
-      wechat_qrcode: '',
-      communities: [
-        {
-          id: 'community-001',
-          name: '翡翠湖畔',
-          cases: [
-            {
-              id: 'case-001',
-              title: '翡翠湖畔 3栋 1201室',
-              featured: true,
-              images: [
-                'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80',
-                'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1200&q=80',
-                'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1200&q=80'
-              ]
-            },
-            {
-              id: 'case-002',
-              title: '翡翠湖畔 5栋 803室',
-              featured: true,
-              images: [
-                'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80',
-                'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1200&q=80'
-              ]
-            }
-          ]
-        },
-        {
-          id: 'community-002',
-          name: '万科金域华府',
-          cases: [
-            {
-              id: 'case-003',
-              title: '万科金域华府 12栋 1502室',
-              featured: true,
-              images: [
-                'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80',
-                'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1200&q=80',
-                'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1200&q=80'
-              ]
-            }
-          ]
-        }
-      ]
-    };
-  }
+  const response = await fetch('./data/cases.json');
+  if (!response.ok) throw new Error('Failed to fetch data');
+  appData = await response.json();
 }
 
 // ============================================
@@ -133,14 +77,14 @@ function renderHero() {
   
   hero.innerHTML = `
     <div class="hero__bg">
-      <img src="${bgImage}" alt="品牌展示图" loading="eager">
+      <img src="${escapeHtml(bgImage)}" alt="品牌展示图" loading="eager" onerror="this.style.display='none'">
     </div>
     <div class="hero__content">
       <div class="hero__logo">
-        ${brand.logo ? `<img src="${brand.logo}" alt="${brand.name}">` : getBrandInitial(brand.name)}
+        ${brand.logo ? `<img src="${escapeHtml(brand.logo)}" alt="${escapeHtml(brand.name)}" onerror="this.style.display='none';this.parentElement.textContent='${escapeHtml(getBrandInitial(brand.name))}'">` : escapeHtml(getBrandInitial(brand.name))}
       </div>
-      <div class="hero__brand">${brand.name}</div>
-      <h1 class="hero__title">${brand.slogan}</h1>
+      <div class="hero__brand">${escapeHtml(brand.name)}</div>
+      <h1 class="hero__title">${escapeHtml(brand.slogan)}</h1>
     </div>
     <div class="hero__scroll">
       <svg viewBox="0 0 24 40" fill="none" stroke="currentColor" stroke-width="2">
@@ -170,12 +114,12 @@ function renderFeatured() {
     return `
       <div class="featured__slide ${index === 0 ? 'is-active' : ''}" data-index="${index}">
         <div class="featured__image">
-          <img src="${item.case.images[0]}" alt="${item.case.title}" loading="lazy">
+          <img src="${escapeHtml(item.case.images[0])}" alt="${escapeHtml(item.case.title)}" loading="lazy" onerror="this.style.opacity=0.3">
         </div>
         <div class="featured__info">
-          <h3 class="featured__community">${community?.name || ''}</h3>
+          <h3 class="featured__community">${escapeHtml(community?.name || '')}</h3>
           <div class="featured__meta">
-            <span>${item.case.title}</span>
+            <span>${escapeHtml(item.case.title)}</span>
           </div>
           <p class="featured__highlight">精心定制，每一寸空间都恰到好处。</p>
           <div class="featured__count">${item.case.images.length} 张效果图</div>
@@ -190,7 +134,7 @@ function renderFeatured() {
   
   featured.innerHTML = `
     <div class="featured__header reveal">
-      <div class="featured__label">精选案例</div>
+      <div class="featured__chapter">精选案例</div>
       <h2 class="featured__title">空间改造的艺术</h2>
     </div>
     <div class="featured__track-wrapper">
@@ -235,14 +179,14 @@ function renderCommunity() {
     
     return `
       <div class="community__card ${isLarge ? 'community__card--large' : ''} ${!representativeImage ? 'community__card--small' : ''}" 
-           data-community-id="${c.id}">
+           data-community-id="${escapeHtml(c.id)}">
         ${representativeImage ? `
           <div class="community__card-image">
-            <img src="${representativeImage}" alt="${c.name}" loading="lazy">
+            <img src="${escapeHtml(representativeImage)}" alt="${escapeHtml(c.name)}" loading="lazy" onerror="this.parentElement.style.display='none'">
           </div>
         ` : ''}
         <div class="community__card-info">
-          <div class="community__card-name">${c.name}</div>
+          <div class="community__card-name">${escapeHtml(c.name)}</div>
           <div class="community__card-count">${caseCount} 个案例</div>
         </div>
       </div>
@@ -252,7 +196,7 @@ function renderCommunity() {
   community.innerHTML = `
     <div class="container">
       <div class="community__header reveal">
-        <div class="community__label">按小区浏览</div>
+        <div class="community__chapter">按小区浏览</div>
         <h2 class="community__title">找到您的小区</h2>
         <div class="community__search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -290,13 +234,13 @@ function renderCases(communityId) {
   const caseItems = community.cases.map((c, index) => {
     const slides = c.images.map(img => `
       <div class="swiper-slide">
-        <img src="${img}" alt="${c.title}" loading="lazy" data-src="${img}">
+        <img src="${escapeHtml(img)}" alt="${escapeHtml(c.title)}" loading="lazy" data-src="${escapeHtml(img)}" onerror="this.style.opacity=0.3">
       </div>
     `).join('');
     
     return `
-      <div class="case-item" data-case-id="${c.id}">
-        <h3 class="case-item__title">${c.title}</h3>
+      <div class="case-item" data-case-id="${escapeHtml(c.id)}">
+        <h3 class="case-item__title">${escapeHtml(c.title)}</h3>
         <div class="case-item__swiper swiper" data-case-index="${index}">
           <div class="swiper-wrapper">
             ${slides}
@@ -312,7 +256,7 @@ function renderCases(communityId) {
   casesSection.innerHTML = `
     <div class="container">
       <div class="cases__header">
-        <h2 class="cases__community-name">${community.name}</h2>
+        <h2 class="cases__community-name">${escapeHtml(community.name)}</h2>
         <button class="cases__back" id="cases-back">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
             <polyline points="15 18 9 12 15 6"/>
@@ -362,14 +306,14 @@ function renderFooter() {
       <div class="footer__inner">
         <div class="footer__brand">
           <div class="footer__logo">
-            ${brand.logo ? `<img src="${brand.logo}" alt="${brand.name}">` : getBrandInitial(brand.name)}
+            ${brand.logo ? `<img src="${escapeHtml(brand.logo)}" alt="${escapeHtml(brand.name)}" onerror="this.style.display='none';this.parentElement.textContent='${escapeHtml(getBrandInitial(brand.name))}'">` : escapeHtml(getBrandInitial(brand.name))}
           </div>
-          <div class="footer__name">${brand.name}</div>
-          <p class="footer__slogan">${brand.slogan}</p>
+          <div class="footer__name">${escapeHtml(brand.name)}</div>
+          <p class="footer__slogan">${escapeHtml(brand.slogan)}</p>
         </div>
         <div class="footer__contact">
           <div class="footer__qrcode">
-            ${wechat_qrcode ? `<img src="${wechat_qrcode}" alt="微信二维码">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:0.8rem;">二维码</div>'}
+            ${wechat_qrcode ? `<img src="${escapeHtml(wechat_qrcode)}" alt="微信二维码" onerror="this.style.display='none'">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:0.8rem;">二维码</div>'}
           </div>
           <div class="footer__label">扫码添加微信</div>
         </div>
@@ -393,7 +337,7 @@ function initFeaturedCarousel(totalSlides) {
     if (index >= totalSlides) index = 0;
     currentIndex = index;
     
-    track.style.transform = `translateX(-${currentIndex * 100}vw)`;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
     
     // 更新 dots
     dots.forEach((dot, i) => {
@@ -468,8 +412,10 @@ function initFeaturedCarousel(totalSlides) {
 // 案例 Swiper 初始化
 // ============================================
 function initCaseSwipers() {
-  // 销毁旧的 Swiper 实例
-  caseSwipers.forEach(s => s.destroy?.());
+  // 彻底销毁旧的 Swiper 实例
+  caseSwipers.forEach(s => {
+    try { s.destroy(true, true); } catch (e) { console.warn('Swiper destroy failed:', e); }
+  });
   caseSwipers = [];
   
   // 检查 Swiper 是否加载
@@ -484,11 +430,11 @@ function initCaseSwipers() {
       slidesPerView: 1,
       loop: true,
       navigation: {
-        nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev',
+        nextEl: el.querySelector('.swiper-button-next'),
+        prevEl: el.querySelector('.swiper-button-prev'),
       },
       pagination: {
-        el: '.swiper-pagination',
+        el: el.querySelector('.swiper-pagination'),
         clickable: true,
       },
       on: {
@@ -556,21 +502,21 @@ function initCommunitySearch() {
     const query = e.target.value.toLowerCase().trim();
     const cards = grid?.querySelectorAll('.community__card');
     
+    let visibleCount = 0;
     cards?.forEach(card => {
       const name = card.querySelector('.community__card-name')?.textContent.toLowerCase() || '';
       const isVisible = name.includes(query);
       card.style.display = isVisible ? '' : 'none';
+      if (isVisible) visibleCount++;
     });
     
-    // 显示空状态
-    const visibleCards = grid?.querySelectorAll('.community__card[style=""], .community__card:not([style])');
-    const emptyEl = grid?.querySelector('.community__empty');
-    
-    if (visibleCards?.length === 0 && !emptyEl) {
-      grid?.insertAdjacentHTML('beforeend', `
-        <div class="community__empty">未找到匹配的小区</div>
-      `);
-    } else if (visibleCards?.length > 0 && emptyEl) {
+    // 显示/隐藏空状态
+    let emptyEl = grid?.querySelector('.community__empty');
+    if (visibleCount === 0) {
+      if (!emptyEl) {
+        grid?.insertAdjacentHTML('beforeend', '<div class="community__empty">未找到匹配的小区</div>');
+      }
+    } else if (emptyEl) {
       emptyEl.remove();
     }
   });
@@ -644,6 +590,20 @@ function initLightbox() {
       case 'ArrowRight':
         navigateLightbox(1);
         break;
+      case 'Tab':
+        // Focus trap：在灯箱内循环焦点
+        e.preventDefault();
+        const focusable = lightbox.querySelectorAll('button');
+        if (focusable.length === 0) break;
+        const currentIdx = Array.from(focusable).indexOf(document.activeElement);
+        let nextIdx;
+        if (e.shiftKey) {
+          nextIdx = currentIdx <= 0 ? focusable.length - 1 : currentIdx - 1;
+        } else {
+          nextIdx = currentIdx >= focusable.length - 1 ? 0 : currentIdx + 1;
+        }
+        focusable[nextIdx]?.focus();
+        break;
     }
   });
 }
@@ -655,12 +615,17 @@ function openLightbox(images, startIndex = 0) {
   lightboxState = {
     isOpen: true,
     images: images,
-    currentIndex: startIndex
+    currentIndex: startIndex,
+    previousActiveElement: document.activeElement
   };
   
   updateLightboxImage();
   lightbox.classList.add('is-open');
   document.body.style.overflow = 'hidden';
+  
+  // Focus trap：将焦点移到关闭按钮
+  const closeBtn = lightbox.querySelector('.lightbox__close');
+  closeBtn?.focus();
 }
 
 function closeLightbox() {
@@ -670,6 +635,11 @@ function closeLightbox() {
   lightboxState.isOpen = false;
   lightbox.classList.remove('is-open');
   document.body.style.overflow = '';
+  
+  // 恢复焦点
+  if (lightboxState.previousActiveElement) {
+    lightboxState.previousActiveElement.focus?.();
+  }
 }
 
 function navigateLightbox(direction) {
@@ -755,6 +725,20 @@ function initNavigation() {
 // ============================================
 // 辅助函数
 // ============================================
+
+/**
+ * HTML 转义，防止 XSS
+ */
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function getFeaturedCases() {
   if (!appData) return [];
   

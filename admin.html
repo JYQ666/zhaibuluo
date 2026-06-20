@@ -665,6 +665,31 @@
     let modalImages = []; // array of { blob, dataUrl }
 
     // ============================================
+    // Utils
+    // ============================================
+
+    /**
+     * HTML 转义，防止 XSS
+     */
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * 生成唯一 ID（使用 crypto.randomUUID，降级到时间戳+随机数）
+     */
+    function generateId(prefix) {
+      const uuid = (crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
+      return `${prefix}-${uuid}`;
+    }
+
+    // ============================================
     // Init
     // ============================================
     document.addEventListener('DOMContentLoaded', () => {
@@ -836,11 +861,7 @@
       if (!projectDirHandle) return;
 
       try {
-        // 1. Write cases.json
-        const jsonStr = JSON.stringify(data, null, 2);
-        await writeFile('data/cases.json', jsonStr);
-
-        // 2. Write new/changed images
+        // 1. 先写所有新/变更的图片（确保引用的图片都存在）
         for (const [path, img] of Object.entries(pendingImages)) {
           if (img.blob && !img.saved) {
             await writeFile(path, img.blob);
@@ -848,7 +869,11 @@
           }
         }
 
-        // 3. Delete removed images
+        // 2. 所有图片写入成功后，再写 cases.json
+        const jsonStr = JSON.stringify(data, null, 2);
+        await writeFile('data/cases.json', jsonStr);
+
+        // 3. 最后删除已移除的图片（JSON 已更新，删除不会影响一致性）
         for (const path of deletedImages) {
           await deleteFile(path);
         }
@@ -905,12 +930,12 @@
       // Logo preview
       const logoPreview = document.getElementById('logo-preview');
       const logoUrl = data.brand.logo ? pendingImages[data.brand.logo]?.dataUrl : null;
-      logoPreview.innerHTML = logoUrl ? `<div class="image-thumb"><img src="${logoUrl}"></div>` : '';
+      logoPreview.innerHTML = logoUrl ? `<div class="image-thumb"><img src="${escapeHtml(logoUrl)}" alt=""></div>` : '';
 
       // QR Code preview
       const qrPreview = document.getElementById('qrcode-preview');
       const qrUrl = data.wechat_qrcode ? pendingImages[data.wechat_qrcode]?.dataUrl : null;
-      qrPreview.innerHTML = qrUrl ? `<div class="image-thumb"><img src="${qrUrl}"></div>` : '';
+      qrPreview.innerHTML = qrUrl ? `<div class="image-thumb"><img src="${escapeHtml(qrUrl)}" alt=""></div>` : '';
     }
 
     function renderCommunityList() {
@@ -925,25 +950,25 @@
         const casesHtml = c.cases.map(cs => {
           const thumbs = cs.images.slice(0, 3).map(p => {
             const url = pendingImages[p]?.dataUrl || '';
-            return url ? `<img src="${url}">` : '';
+            return url ? `<img src="${escapeHtml(url)}" alt="">` : '';
           }).join('');
 
           return `
             <div class="case-row">
               <div class="thumbs">${thumbs}</div>
-              <div class="title">${cs.title}</div>
+              <div class="title">${escapeHtml(cs.title)}</div>
               <div class="meta">
                 <span>${cs.images.length} 张</span>
                 ${cs.featured ? '<span class="featured-tag">精选</span>' : ''}
               </div>
               <div class="actions">
-                <button class="btn btn-ghost" onclick="openEditCase('${c.id}','${cs.id}')" title="编辑">
+                <button class="btn btn-ghost" onclick="openEditCase('${escapeHtml(c.id)}','${escapeHtml(cs.id)}')" title="编辑">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
-                <button class="btn btn-ghost" onclick="toggleFeatured('${c.id}','${cs.id}')" title="${cs.featured ? '取消精选' : '设为精选'}">
+                <button class="btn btn-ghost" onclick="toggleFeatured('${escapeHtml(c.id)}','${escapeHtml(cs.id)}')" title="${cs.featured ? '取消精选' : '设为精选'}">
                   <svg viewBox="0 0 24 24" fill="${cs.featured ? '#faad14' : 'none'}" stroke="${cs.featured ? '#faad14' : 'currentColor'}" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 </button>
-                <button class="btn btn-ghost" style="color:var(--danger)" onclick="deleteCase('${c.id}','${cs.id}')" title="删除">
+                <button class="btn btn-ghost" style="color:var(--danger)" onclick="deleteCase('${escapeHtml(c.id)}','${escapeHtml(cs.id)}')" title="删除">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                 </button>
               </div>
@@ -956,15 +981,15 @@
             <div class="community-block-header" onclick="this.parentElement.classList.toggle('collapsed')">
               <h3>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="transition:transform 0.2s"><polyline points="6 9 12 15 18 9"/></svg>
-                ${c.name}
+                ${escapeHtml(c.name)}
                 <span class="case-count">${c.cases.length} 个案例</span>
               </h3>
               <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
-                <button class="btn btn-ghost" onclick="renameCommunity('${c.id}')" title="重命名">
+                <button class="btn btn-ghost" onclick="renameCommunity('${escapeHtml(c.id)}')" title="重命名">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
-                <button class="btn btn-primary" onclick="openAddCase('${c.id}')" style="font-size:12px;padding:4px 10px">+ 案例</button>
-                <button class="btn btn-ghost" style="color:var(--danger)" onclick="deleteCommunity('${c.id}')" title="删除小区">
+                <button class="btn btn-primary" onclick="openAddCase('${escapeHtml(c.id)}')" style="font-size:12px;padding:4px 10px">+ 案例</button>
+                <button class="btn btn-ghost" style="color:var(--danger)" onclick="deleteCommunity('${escapeHtml(c.id)}')" title="删除小区">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                 </button>
               </div>
@@ -1033,7 +1058,7 @@
       const name = prompt('输入小区名称:');
       if (!name || !name.trim()) return;
 
-      const id = 'community-' + Date.now();
+      const id = generateId('community');
       data.communities.push({ id, name: name.trim(), cases: [] });
       renderCommunityList();
       document.getElementById('nav-community-count').textContent = data.communities.length;
@@ -1126,7 +1151,7 @@
       const container = document.getElementById('case-images-preview');
       container.innerHTML = modalImages.map((img, i) => `
         <div class="image-thumb" draggable="true" data-index="${i}">
-          <img src="${img.dataUrl}">
+          <img src="${escapeHtml(img.dataUrl)}" alt="">
           <button class="remove" onclick="removeModalImage(${i})">&times;</button>
           <span class="order-num">${i + 1}</span>
         </div>
@@ -1163,17 +1188,20 @@
         cs.featured = featured;
         cs.images = modalImages.map((img, i) => {
           if (img.existingPath) return img.existingPath;
+          // 新图片用 UUID 命名，避免覆盖已有图片
           const ext = img.blob.name?.split('.').pop() || img.blob.type.split('/')[1] || 'jpg';
-          const path = `images/${community.id}/${modalCaseId}/${i + 1}.${ext}`;
+          const uniqueId = generateId('img').slice(-12);
+          const path = `images/${community.id}/${modalCaseId}/${uniqueId}.${ext}`;
           pendingImages[path] = { blob: img.blob, dataUrl: img.dataUrl, saved: false };
           return path;
         });
       } else {
         // Add new
-        const caseId = 'case-' + Date.now();
+        const caseId = generateId('case');
         const images = modalImages.map((img, i) => {
           const ext = img.blob.name?.split('.').pop() || img.blob.type.split('/')[1] || 'jpg';
-          const path = `images/${community.id}/${caseId}/${i + 1}.${ext}`;
+          const uniqueId = generateId('img').slice(-12);
+          const path = `images/${community.id}/${caseId}/${uniqueId}.${ext}`;
           pendingImages[path] = { blob: img.blob, dataUrl: img.dataUrl, saved: false };
           return path;
         });
