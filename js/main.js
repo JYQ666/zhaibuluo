@@ -15,6 +15,109 @@ let lightboxState = {
   images: [],
   currentIndex: 0
 };
+let heroCanvasAnimation = null;
+
+// ============================================
+// Hero Canvas 流体动画
+// ============================================
+class HeroFluidAnimation {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.blobs = [];
+    this.animationId = null;
+    this.isRunning = false;
+    
+    // 暖铜色光斑配置
+    this.blobConfigs = [
+      { color: 'rgba(190, 120, 65, 0.15)', size: 300, speed: 0.3 },
+      { color: 'rgba(190, 120, 65, 0.1)', size: 400, speed: 0.2 },
+      { color: 'rgba(255, 200, 100, 0.08)', size: 250, speed: 0.4 },
+      { color: 'rgba(190, 120, 65, 0.12)', size: 350, speed: 0.25 },
+    ];
+    
+    this.init();
+  }
+  
+  init() {
+    this.resize();
+    this.createBlobs();
+    this.start();
+    
+    window.addEventListener('resize', () => this.resize());
+  }
+  
+  resize() {
+    const dpr = window.devicePixelRatio || 1;
+    this.canvas.width = window.innerWidth * dpr;
+    this.canvas.height = window.innerHeight * dpr;
+    this.canvas.style.width = window.innerWidth + 'px';
+    this.canvas.style.height = window.innerHeight + 'px';
+    this.ctx.scale(dpr, dpr);
+  }
+  
+  createBlobs() {
+    this.blobs = this.blobConfigs.map(config => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      baseX: Math.random() * window.innerWidth,
+      baseY: Math.random() * window.innerHeight,
+      size: config.size,
+      color: config.color,
+      speed: config.speed,
+      phase: Math.random() * Math.PI * 2,
+      phaseY: Math.random() * Math.PI * 2
+    }));
+  }
+  
+  start() {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    this.animate();
+  }
+  
+  stop() {
+    this.isRunning = false;
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+    }
+  }
+  
+  animate() {
+    if (!this.isRunning) return;
+    
+    const { ctx, canvas } = this;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    // 清空画布（深墨绿背景）
+    ctx.fillStyle = 'rgb(25, 70, 60)';
+    ctx.fillRect(0, 0, width, height);
+    
+    // 绘制光斑
+    this.blobs.forEach(blob => {
+      // 使用正弦波实现缓慢漂浮
+      blob.phase += 0.005 * blob.speed;
+      blob.phaseY += 0.003 * blob.speed;
+      
+      blob.x = blob.baseX + Math.sin(blob.phase) * 100;
+      blob.y = blob.baseY + Math.cos(blob.phaseY) * 80;
+      
+      // 创建径向渐变
+      const gradient = ctx.createRadialGradient(
+        blob.x, blob.y, 0,
+        blob.x, blob.y, blob.size
+      );
+      gradient.addColorStop(0, blob.color);
+      gradient.addColorStop(1, 'transparent');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+    });
+    
+    this.animationId = requestAnimationFrame(() => this.animate());
+  }
+}
 
 // ============================================
 // 初始化
@@ -71,14 +174,8 @@ function renderHero() {
   
   const { brand } = appData;
   
-  // 使用第一张精选案例图作为背景
-  const featuredImages = getFeaturedImages();
-  const bgImage = featuredImages[0] || '';
-  
   hero.innerHTML = `
-    <div class="hero__bg">
-      <img src="${escapeHtml(bgImage)}" alt="品牌展示图" loading="eager" onerror="this.style.display='none'">
-    </div>
+    <canvas class="hero__bg-canvas" aria-hidden="true"></canvas>
     <div class="hero__content">
       <div class="hero__logo">
         ${brand.logo ? `<img src="${escapeHtml(brand.logo)}" alt="${escapeHtml(brand.name)}" onerror="this.style.display='none';this.parentElement.textContent='${escapeHtml(getBrandInitial(brand.name))}'">` : escapeHtml(getBrandInitial(brand.name))}
@@ -94,6 +191,12 @@ function renderHero() {
       </svg>
     </div>
   `;
+  
+  // 启动 Canvas 流体动画
+  const canvas = hero.querySelector('.hero__bg-canvas');
+  if (canvas) {
+    heroCanvasAnimation = new HeroFluidAnimation(canvas);
+  }
 }
 
 // ============================================
