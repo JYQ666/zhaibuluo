@@ -1,0 +1,24 @@
+{
+  "brand": {
+    "logo": "images/brand/logo.jpg",
+    "name": "宅部落全屋定制",
+    "slogan": "享品质生活就选宅部落"
+  },
+  "wechat_qrcode": "",
+  "communities": [
+    {
+      "id": "community-1781951080446",
+      "name": "万家天府",
+      "cases": [
+        {
+          "id": "case-1781991818455",
+          "title": "1栋301",
+          "featured": false,
+          "images": [
+            "images/community-1781951080446/case-1781991818455/1.jpg"
+          ]
+        }
+      ]
+    }
+  ]
+}

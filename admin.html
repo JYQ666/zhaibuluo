@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案例管理后台</title>
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --surface: #fff;
+      --border: #e5e5e3;
+      --text: #1a1a1a;
+      --text-secondary: #666;
+      --primary: #1890ff;
+      --primary-hover: #40a9ff;
+      --success: #52c41a;
+      --danger: #e84749;
+      --warning: #faad14;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* --- Layout --- */
+    .app { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 260px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header h1 { font-size: 16px; font-weight: 600; }
+    .sidebar-header p { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+    .sidebar-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
+
+    .nav-section { padding: 8px 20px 4px; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text);
+      transition: background 0.15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover { background: var(--bg); }
+    .nav-item.active { background: #e6f4ff; color: var(--primary); font-weight: 500; }
+
+    .nav-item .badge {
+      margin-left: auto;
+      font-size: 11px;
+      background: var(--bg);
+      padding: 1px 8px;
+      border-radius: 10px;
+      color: var(--text-secondary);
+    }
+
+    .sidebar-footer {
+      padding: 15px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .main { flex: 1; padding: 30px 40px; max-width: 900px; }
+
+    /* --- Folder Picker (initial state) --- */
+    .folder-picker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    .folder-picker-card {
+      background: var(--surface);
+      padding: 60px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      max-width: 480px;
+    }
+
+    .folder-picker-card h2 { font-size: 22px; margin-bottom: 8px; }
+    .folder-picker-card p { color: var(--text-secondary); margin-bottom: 24px; font-size: 14px; }
+
+    .folder-picker-card .icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      background: #e6f4ff;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .folder-picker-card .icon svg { width: 32px; height: 32px; color: var(--primary); }
+
+    .folder-status {
+      margin-top: 16px;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      display: none;
+    }
+
+    .folder-status.success { display: block; background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+    .folder-status.error { display: block; background: #fff2f0; color: #cf1322; border: 1px solid #ffccc7; }
+
+    /* --- Buttons --- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .btn:hover { border-color: #ccc; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+
+    .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+    .btn-success:hover { opacity: 0.9; }
+
+    .btn-danger { color: var(--danger); border-color: #ffccc7; }
+    .btn-danger:hover { background: #fff2f0; }
+
+    .btn-ghost { border: none; background: none; }
+    .btn-ghost:hover { background: var(--bg); }
+
+    .btn-lg { padding: 12px 28px; font-size: 15px; }
+
+    /* --- Page Header --- */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .page-header h2 { font-size: 20px; font-weight: 600; }
+
+    /* --- Cards / Sections --- */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .card-header h3 { font-size: 15px; font-weight: 600; }
+
+    /* --- Forms --- */
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-row > * { flex: 1; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: var(--text-secondary); }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+    }
+
+    /* --- Image Upload --- */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .upload-zone:hover { border-color: var(--primary); background: #f0f7ff; }
+    .upload-zone input { display: none; }
+
+    .image-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .image-thumb {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      cursor: grab;
+    }
+
+    .image-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    .image-thumb .remove {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      border: none;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .image-thumb:hover .remove { opacity: 1; }
+    .image-thumb.dragging { opacity: 0.4; }
+
+    .image-thumb .order-num {
+      position: absolute;
+      bottom: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* --- Community / Case List --- */
+    .community-block {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .community-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--bg);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .community-block-header h3 { font-size: 14px; display: flex; align-items: center; gap: 8px; }
+
+    .community-block-header .case-count {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      background: var(--surface);
+      padding: 1px 8px;
+      border-radius: 10px;
+    }
+
+    .community-block-body { padding: 0; }
+
+    .case-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .case-row:hover { background: #fafafa; }
+
+    .case-row .thumbs {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .case-row .thumbs img {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+
+    .case-row .title { flex: 1; font-weight: 500; }
+
+    .case-row .meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .featured-tag {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: #fff7e6;
+      color: #d48806;
+      border: 1px solid #ffe58f;
+    }
+
+    .case-row .actions { display: flex; gap: 4px; }
+
+    /* --- Modal --- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 10px;
+      width: 520px;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h3 { font-size: 16px; }
+    .modal-body { padding: 20px 24px; }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* --- Toast --- */
+    .toast-container {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: var(--surface);
+      padding: 12px 18px;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      font-size: 13px;
+      animation: toastIn 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success { border-left: 3px solid var(--success); }
+    .toast.error { border-left: 3px solid var(--danger); }
+
+    @keyframes toastIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* --- Save Bar --- */
+    .save-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 500;
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+    }
+
+    .save-bar.visible { transform: translateY(0); }
+    .save-bar .info { font-size: 13px; color: var(--text-secondary); }
+    .save-bar .actions { display: flex; gap: 8px; }
+
+    /* --- Misc --- */
+    .empty-state { text-align: center; padding: 40px; color: var(--text-secondary); font-size: 14px; }
+
+    .hidden { display: none !important; }
+
+    .text-muted { color: var(--text-secondary); }
+    .text-sm { font-size: 12px; }
+
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+    .unsupported-banner {
+      background: #fff7e6;
+      border: 1px solid #ffe58f;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #ad6800;
+    }
+
+    .unsupported-banner strong { color: #d48806; }
+  </style>
+</head>
+<body>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Folder Picker (initial state) -->
+  <div class="folder-picker" id="folder-picker">
+    <div class="folder-picker-card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+        </svg>
+      </div>
+      <h2>选择项目文件夹</h2>
+      <p>请选择定制衣柜网站的项目根目录（包含 data/ 和 images/ 的文件夹）</p>
+      <button class="btn btn-primary btn-lg" id="btn-pick-folder" onclick="pickFolder()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+        </svg>
+        选择文件夹
+      </button>
+      <div class="folder-status" id="folder-status"></div>
+      <div id="unsupported-notice" class="unsupported-banner hidden" style="margin-top: 20px; text-align: left;">
+        <strong>浏览器不支持直接读写文件夹。</strong><br>
+        请使用 Chrome 86+ 或 Edge 86+ 浏览器打开此页面，即可直接读写项目目录，无需手动导出。
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div class="app hidden" id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>案例管理</h1>
+        <p id="project-name">未连接项目</p>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">内容</div>
+        <button class="nav-item active" data-view="brand" onclick="switchView('brand')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          品牌信息
+        </button>
+        <button class="nav-item" data-view="communities" onclick="switchView('communities')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          小区与案例
+          <span class="badge" id="nav-community-count">0</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn btn-ghost" style="width: 100%; justify-content: center;" onclick="changeFolder()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          切换项目文件夹
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main" id="main-content">
+      <!-- Brand View -->
+      <div id="view-brand">
+        <div class="page-header">
+          <h2>品牌信息</h2>
+        </div>
+
+        <div class="card">
+          <div class="form-row">
+            <div class="form-group">
+              <label>品牌名称</label>
+              <input type="text" id="brand-name" placeholder="例如：臻品定制" oninput="markDirty()">
+            </div>
+            <div class="form-group">
+              <label>Slogan</label>
+              <input type="text" id="brand-slogan" placeholder="例如：为每个家庭，定制专属收纳空间" oninput="markDirty()">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>品牌 Logo</h3></div>
+          <div class="upload-zone" onclick="document.getElementById('logo-input').click()">
+            点击上传 Logo（建议 200×200px）
+            <input type="file" id="logo-input" accept="image/*">
+          </div>
+          <div class="image-grid" id="logo-preview"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>微信二维码</h3></div>
+          <div class="upload-zone" onclick="document.getElementById('qrcode-input').click()">
+            点击上传微信二维码（建议 300×300px）
+            <input type="file" id="qrcode-input" accept="image/*">
+          </div>
+          <div class="image-grid" id="qrcode-preview"></div>
+        </div>
+      </div>
+
+      <!-- Communities View -->
+      <div id="view-communities" class="hidden">
+        <div class="page-header">
+          <h2>小区与案例</h2>
+          <button class="btn btn-primary" onclick="openAddCommunity()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            添加小区
+          </button>
+        </div>
+        <div id="community-list"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Save Bar -->
+  <div class="save-bar" id="save-bar">
+    <span class="info">有未保存的更改</span>
+    <div class="actions">
+      <button class="btn" onclick="discardChanges()">放弃</button>
+      <button class="btn btn-primary" onclick="saveAll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        保存到项目
+      </button>
+    </div>
+  </div>
+
+  <!-- Add/Edit Case Modal -->
+  <div class="modal-overlay" id="case-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="case-modal-title">添加案例</h3>
+        <button class="btn btn-ghost" onclick="closeCaseModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>案例标题</label>
+          <input type="text" id="case-title" placeholder="例如：翡翠湖畔 3栋 1201室">
+        </div>
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="case-featured">
+            <span>标记为精选案例</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label>案例图片（拖拽排序）</label>
+          <div class="upload-zone" onclick="document.getElementById('case-images-input').click()">
+            点击上传图片（支持多选）
+            <input type="file" id="case-images-input" accept="image/*" multiple>
+          </div>
+          <div class="image-grid" id="case-images-preview"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeCaseModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveCaseFromModal()">保存案例</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // State
+    // ============================================
+    let projectDirHandle = null;
+    let data = { brand: { logo: '', name: '', slogan: '' }, wechat_qrcode: '', communities: [] };
+    let originalData = null; // for dirty detection
+    let isDirty = false;
+
+    // Image storage: we store images as { path: string, blob: Blob, dataUrl: string }
+    // path is the relative path in the project, e.g. "images/brand/logo.png"
+    let pendingImages = {}; // path -> { blob, dataUrl }
+    let deletedImages = new Set(); // paths to delete on save
+
+    // Modal state
+    let modalCommunityId = null;
+    let modalCaseId = null;
+    let modalImages = []; // array of { blob, dataUrl }
+
+    // ============================================
+    // Init
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!('showDirectoryPicker' in window)) {
+        document.getElementById('unsupported-notice').classList.remove('hidden');
+      }
+
+      // Image upload handlers
+      document.getElementById('logo-input').addEventListener('change', e => handleBrandImage(e, 'logo'));
+      document.getElementById('qrcode-input').addEventListener('change', e => handleBrandImage(e, 'qrcode'));
+      document.getElementById('case-images-input').addEventListener('change', e => handleCaseImages(e));
+    });
+
+    // ============================================
+    // Folder Picker
+    // ============================================
+    async function pickFolder() {
+      if (!('showDirectoryPicker' in window)) return;
+
+      try {
+        projectDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+
+        // Verify it's a valid project folder
+        const hasData = await hasSubdir('data');
+        const hasImages = await hasSubdir('images');
+
+        if (!hasData || !hasImages) {
+          showFolderStatus('请选择包含 data/ 和 images/ 目录的项目文件夹', 'error');
+          projectDirHandle = null;
+          return;
+        }
+
+        showFolderStatus('项目文件夹已连接', 'success');
+
+        // Load existing data
+        await loadProjectData();
+
+        // Show app
+        setTimeout(() => {
+          document.getElementById('folder-picker').classList.add('hidden');
+          document.getElementById('app').classList.remove('hidden');
+          document.getElementById('project-name').textContent = projectDirHandle.name;
+          renderAll();
+        }, 600);
+
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          showFolderStatus('打开文件夹失败: ' + err.message, 'error');
+        }
+      }
+    }
+
+    function changeFolder() {
+      if (isDirty && !confirm('有未保存的更改，确定要切换文件夹吗？')) return;
+      document.getElementById('app').classList.add('hidden');
+      document.getElementById('folder-picker').classList.remove('hidden');
+      document.getElementById('folder-status').className = 'folder-status';
+      projectDirHandle = null;
+    }
+
+    function showFolderStatus(msg, type) {
+      const el = document.getElementById('folder-status');
+      el.textContent = msg;
+      el.className = 'folder-status ' + type;
+    }
+
+    // ============================================
+    // File System Helpers
+    // ============================================
+    async function hasSubdir(name) {
+      try {
+        await projectDirHandle.getDirectoryHandle(name);
+        return true;
+      } catch { return false; }
+    }
+
+    async function ensureDir(pathParts) {
+      let dir = projectDirHandle;
+      for (const part of pathParts) {
+        dir = await dir.getDirectoryHandle(part, { create: true });
+      }
+      return dir;
+    }
+
+    async function readFile(path) {
+      const parts = path.split('/');
+      const fileName = parts.pop();
+      let dir = projectDirHandle;
+      for (const part of parts) {
+        dir = await dir.getDirectoryHandle(part);
+      }
+      const fileHandle = await dir.getFileHandle(fileName);
+      return await fileHandle.getFile();
+    }
+
+    async function writeFile(path, content) {
+      const parts = path.split('/');
+      const fileName = parts.pop();
+      const dir = await ensureDir(parts);
+      const fileHandle = await dir.getFileHandle(fileName, { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(content);
+      await writable.close();
+    }
+
+    async function deleteFile(path) {
+      try {
+        const parts = path.split('/');
+        const fileName = parts.pop();
+        let dir = projectDirHandle;
+        for (const part of parts) {
+          dir = await dir.getDirectoryHandle(part);
+        }
+        await dir.removeEntry(fileName);
+      } catch (e) {
+        console.warn('删除文件失败:', path, e);
+      }
+    }
+
+    // ============================================
+    // Load Project Data
+    // ============================================
+    async function loadProjectData() {
+      try {
+        const file = await readFile('data/cases.json');
+        const text = await file.text();
+        data = JSON.parse(text);
+      } catch (e) {
+        console.warn('无法读取 cases.json，使用空数据', e);
+        data = { brand: { logo: '', name: '', slogan: '' }, wechat_qrcode: '', communities: [] };
+      }
+
+      // Load brand images as data URLs for preview
+      if (data.brand.logo) {
+        try {
+          const file = await readFile(data.brand.logo);
+          const url = await blobToDataUrl(file);
+          pendingImages[data.brand.logo] = { blob: file, dataUrl: url };
+        } catch {}
+      }
+      if (data.wechat_qrcode) {
+        try {
+          const file = await readFile(data.wechat_qrcode);
+          const url = await blobToDataUrl(file);
+          pendingImages[data.wechat_qrcode] = { blob: file, dataUrl: url };
+        } catch {}
+      }
+
+      // Load case images
+      for (const community of data.communities) {
+        for (const caseItem of community.cases) {
+          for (const imgPath of caseItem.images) {
+            try {
+              const file = await readFile(imgPath);
+              const url = await blobToDataUrl(file);
+              pendingImages[imgPath] = { blob: file, dataUrl: url };
+            } catch {}
+          }
+        }
+      }
+
+      originalData = JSON.parse(JSON.stringify(data));
+    }
+
+    // ============================================
+    // Save
+    // ============================================
+    async function saveAll() {
+      if (!projectDirHandle) return;
+
+      try {
+        // 1. Write cases.json
+        const jsonStr = JSON.stringify(data, null, 2);
+        await writeFile('data/cases.json', jsonStr);
+
+        // 2. Write new/changed images
+        for (const [path, img] of Object.entries(pendingImages)) {
+          if (img.blob && !img.saved) {
+            await writeFile(path, img.blob);
+            img.saved = true;
+          }
+        }
+
+        // 3. Delete removed images
+        for (const path of deletedImages) {
+          await deleteFile(path);
+        }
+        deletedImages.clear();
+
+        originalData = JSON.parse(JSON.stringify(data));
+        isDirty = false;
+        updateSaveBar();
+        showToast('已保存到项目文件夹', 'success');
+      } catch (err) {
+        showToast('保存失败: ' + err.message, 'error');
+      }
+    }
+
+    function markDirty() {
+      // Check if data changed from original
+      const current = JSON.stringify(data);
+      const original = JSON.stringify(originalData);
+      isDirty = current !== original || Object.values(pendingImages).some(img => !img.saved);
+      updateSaveBar();
+    }
+
+    function discardChanges() {
+      if (!confirm('确定要放弃所有未保存的更改吗？')) return;
+      data = JSON.parse(JSON.stringify(originalData));
+      // Clear unsaved images
+      for (const [path, img] of Object.entries(pendingImages)) {
+        if (!img.saved) delete pendingImages[path];
+      }
+      deletedImages.clear();
+      isDirty = false;
+      updateSaveBar();
+      renderAll();
+      showToast('已放弃更改', 'success');
+    }
+
+    function updateSaveBar() {
+      document.getElementById('save-bar').classList.toggle('visible', isDirty);
+    }
+
+    // ============================================
+    // Render
+    // ============================================
+    function renderAll() {
+      renderBrand();
+      renderCommunityList();
+      document.getElementById('nav-community-count').textContent = data.communities.length;
+    }
+
+    function renderBrand() {
+      document.getElementById('brand-name').value = data.brand.name || '';
+      document.getElementById('brand-slogan').value = data.brand.slogan || '';
+
+      // Logo preview
+      const logoPreview = document.getElementById('logo-preview');
+      const logoUrl = data.brand.logo ? pendingImages[data.brand.logo]?.dataUrl : null;
+      logoPreview.innerHTML = logoUrl ? `<div class="image-thumb"><img src="${logoUrl}"></div>` : '';
+
+      // QR Code preview
+      const qrPreview = document.getElementById('qrcode-preview');
+      const qrUrl = data.wechat_qrcode ? pendingImages[data.wechat_qrcode]?.dataUrl : null;
+      qrPreview.innerHTML = qrUrl ? `<div class="image-thumb"><img src="${qrUrl}"></div>` : '';
+    }
+
+    function renderCommunityList() {
+      const container = document.getElementById('community-list');
+
+      if (data.communities.length === 0) {
+        container.innerHTML = '<div class="empty-state">暂无小区，点击右上角添加</div>';
+        return;
+      }
+
+      container.innerHTML = data.communities.map(c => {
+        const casesHtml = c.cases.map(cs => {
+          const thumbs = cs.images.slice(0, 3).map(p => {
+            const url = pendingImages[p]?.dataUrl || '';
+            return url ? `<img src="${url}">` : '';
+          }).join('');
+
+          return `
+            <div class="case-row">
+              <div class="thumbs">${thumbs}</div>
+              <div class="title">${cs.title}</div>
+              <div class="meta">
+                <span>${cs.images.length} 张</span>
+                ${cs.featured ? '<span class="featured-tag">精选</span>' : ''}
+              </div>
+              <div class="actions">
+                <button class="btn btn-ghost" onclick="openEditCase('${c.id}','${cs.id}')" title="编辑">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn btn-ghost" onclick="toggleFeatured('${c.id}','${cs.id}')" title="${cs.featured ? '取消精选' : '设为精选'}">
+                  <svg viewBox="0 0 24 24" fill="${cs.featured ? '#faad14' : 'none'}" stroke="${cs.featured ? '#faad14' : 'currentColor'}" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </button>
+                <button class="btn btn-ghost" style="color:var(--danger)" onclick="deleteCase('${c.id}','${cs.id}')" title="删除">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="community-block">
+            <div class="community-block-header" onclick="this.parentElement.classList.toggle('collapsed')">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="transition:transform 0.2s"><polyline points="6 9 12 15 18 9"/></svg>
+                ${c.name}
+                <span class="case-count">${c.cases.length} 个案例</span>
+              </h3>
+              <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+                <button class="btn btn-ghost" onclick="renameCommunity('${c.id}')" title="重命名">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn btn-primary" onclick="openAddCase('${c.id}')" style="font-size:12px;padding:4px 10px">+ 案例</button>
+                <button class="btn btn-ghost" style="color:var(--danger)" onclick="deleteCommunity('${c.id}')" title="删除小区">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="community-block-body">
+              ${casesHtml || '<div class="empty-state" style="padding:20px">暂无案例</div>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================
+    // View Switching
+    // ============================================
+    function switchView(view) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.view === view));
+      document.getElementById('view-brand').classList.toggle('hidden', view !== 'brand');
+      document.getElementById('view-communities').classList.toggle('hidden', view !== 'communities');
+    }
+
+    // ============================================
+    // Brand Info Handlers
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('brand-name').addEventListener('input', e => {
+        data.brand.name = e.target.value;
+        markDirty();
+      });
+      document.getElementById('brand-slogan').addEventListener('input', e => {
+        data.brand.slogan = e.target.value;
+        markDirty();
+      });
+    });
+
+    async function handleBrandImage(e, type) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const ext = file.name.split('.').pop() || 'png';
+      const path = type === 'logo' ? 'images/brand/logo.' + ext : 'images/brand/wechat-qrcode.' + ext;
+
+      // If path changed (different extension), mark old for deletion
+      if (type === 'logo' && data.brand.logo && data.brand.logo !== path) {
+        deletedImages.add(data.brand.logo);
+      }
+      if (type === 'qrcode' && data.wechat_qrcode && data.wechat_qrcode !== path) {
+        deletedImages.add(data.wechat_qrcode);
+      }
+
+      const dataUrl = await blobToDataUrl(file);
+      pendingImages[path] = { blob: file, dataUrl, saved: false };
+
+      if (type === 'logo') data.brand.logo = path;
+      else data.wechat_qrcode = path;
+
+      renderBrand();
+      markDirty();
+      e.target.value = '';
+    }
+
+    // ============================================
+    // Community CRUD
+    // ============================================
+    function openAddCommunity() {
+      const name = prompt('输入小区名称:');
+      if (!name || !name.trim()) return;
+
+      const id = 'community-' + Date.now();
+      data.communities.push({ id, name: name.trim(), cases: [] });
+      renderCommunityList();
+      document.getElementById('nav-community-count').textContent = data.communities.length;
+      markDirty();
+      showToast('小区已添加', 'success');
+    }
+
+    function renameCommunity(id) {
+      const c = data.communities.find(x => x.id === id);
+      if (!c) return;
+      const name = prompt('输入新名称:', c.name);
+      if (!name || !name.trim()) return;
+      c.name = name.trim();
+      renderCommunityList();
+      markDirty();
+    }
+
+    function deleteCommunity(id) {
+      const c = data.communities.find(x => x.id === id);
+      if (!c) return;
+      if (!confirm(`确定删除小区「${c.name}」及其所有案例吗？`)) return;
+
+      // Mark images for deletion
+      for (const cs of c.cases) {
+        for (const imgPath of cs.images) {
+          deletedImages.add(imgPath);
+          delete pendingImages[imgPath];
+        }
+      }
+
+      data.communities = data.communities.filter(x => x.id !== id);
+      renderCommunityList();
+      document.getElementById('nav-community-count').textContent = data.communities.length;
+      markDirty();
+      showToast('小区已删除', 'success');
+    }
+
+    // ============================================
+    // Case CRUD
+    // ============================================
+    function openAddCase(communityId) {
+      modalCommunityId = communityId;
+      modalCaseId = null;
+      modalImages = [];
+      document.getElementById('case-modal-title').textContent = '添加案例';
+      document.getElementById('case-title').value = '';
+      document.getElementById('case-featured').checked = false;
+      document.getElementById('case-images-preview').innerHTML = '';
+      document.getElementById('case-modal').classList.add('open');
+    }
+
+    function openEditCase(communityId, caseId) {
+      const c = data.communities.find(x => x.id === communityId);
+      if (!c) return;
+      const cs = c.cases.find(x => x.id === caseId);
+      if (!cs) return;
+
+      modalCommunityId = communityId;
+      modalCaseId = caseId;
+      modalImages = cs.images.map(path => {
+        const img = pendingImages[path];
+        return img ? { blob: img.blob, dataUrl: img.dataUrl, existingPath: path } : null;
+      }).filter(Boolean);
+
+      document.getElementById('case-modal-title').textContent = '编辑案例';
+      document.getElementById('case-title').value = cs.title;
+      document.getElementById('case-featured').checked = cs.featured;
+      renderCaseImagesPreview();
+      document.getElementById('case-modal').classList.add('open');
+    }
+
+    function closeCaseModal() {
+      document.getElementById('case-modal').classList.remove('open');
+      modalCommunityId = null;
+      modalCaseId = null;
+      modalImages = [];
+    }
+
+    async function handleCaseImages(e) {
+      const files = Array.from(e.target.files);
+      for (const file of files) {
+        const dataUrl = await blobToDataUrl(file);
+        modalImages.push({ blob: file, dataUrl });
+      }
+      renderCaseImagesPreview();
+      e.target.value = '';
+    }
+
+    function renderCaseImagesPreview() {
+      const container = document.getElementById('case-images-preview');
+      container.innerHTML = modalImages.map((img, i) => `
+        <div class="image-thumb" draggable="true" data-index="${i}">
+          <img src="${img.dataUrl}">
+          <button class="remove" onclick="removeModalImage(${i})">&times;</button>
+          <span class="order-num">${i + 1}</span>
+        </div>
+      `).join('');
+      initDragSort(container);
+    }
+
+    function removeModalImage(index) {
+      modalImages.splice(index, 1);
+      renderCaseImagesPreview();
+    }
+
+    function saveCaseFromModal() {
+      const title = document.getElementById('case-title').value.trim();
+      if (!title) { showToast('请输入案例标题', 'error'); return; }
+      if (modalImages.length === 0) { showToast('请至少上传一张图片', 'error'); return; }
+
+      const community = data.communities.find(x => x.id === modalCommunityId);
+      if (!community) return;
+
+      const featured = document.getElementById('case-featured').checked;
+
+      if (modalCaseId) {
+        // Edit existing
+        const cs = community.cases.find(x => x.id === modalCaseId);
+        if (!cs) return;
+
+        // Find removed images
+        const newPaths = new Set();
+        modalImages.forEach(img => { if (img.existingPath) newPaths.add(img.existingPath); });
+        cs.images.forEach(p => { if (!newPaths.has(p)) deletedImages.add(p); });
+
+        cs.title = title;
+        cs.featured = featured;
+        cs.images = modalImages.map((img, i) => {
+          if (img.existingPath) return img.existingPath;
+          const ext = img.blob.name?.split('.').pop() || img.blob.type.split('/')[1] || 'jpg';
+          const path = `images/${community.id}/${modalCaseId}/${i + 1}.${ext}`;
+          pendingImages[path] = { blob: img.blob, dataUrl: img.dataUrl, saved: false };
+          return path;
+        });
+      } else {
+        // Add new
+        const caseId = 'case-' + Date.now();
+        const images = modalImages.map((img, i) => {
+          const ext = img.blob.name?.split('.').pop() || img.blob.type.split('/')[1] || 'jpg';
+          const path = `images/${community.id}/${caseId}/${i + 1}.${ext}`;
+          pendingImages[path] = { blob: img.blob, dataUrl: img.dataUrl, saved: false };
+          return path;
+        });
+
+        community.cases.push({ id: caseId, title, featured, images });
+      }
+
+      closeCaseModal();
+      renderCommunityList();
+      markDirty();
+      showToast('案例已保存', 'success');
+    }
+
+    function toggleFeatured(communityId, caseId) {
+      const c = data.communities.find(x => x.id === communityId);
+      if (!c) return;
+      const cs = c.cases.find(x => x.id === caseId);
+      if (!cs) return;
+      cs.featured = !cs.featured;
+      renderCommunityList();
+      markDirty();
+    }
+
+    function deleteCase(communityId, caseId) {
+      if (!confirm('确定删除这个案例吗？')) return;
+      const c = data.communities.find(x => x.id === communityId);
+      if (!c) return;
+
+      const cs = c.cases.find(x => x.id === caseId);
+      if (cs) {
+        for (const imgPath of cs.images) {
+          deletedImages.add(imgPath);
+          delete pendingImages[imgPath];
+        }
+      }
+
+      c.cases = c.cases.filter(x => x.id !== caseId);
+      renderCommunityList();
+      markDirty();
+      showToast('案例已删除', 'success');
+    }
+
+    // ============================================
+    // Drag Sort
+    // ============================================
+    function initDragSort(container) {
+      let dragIdx = null;
+
+      container.querySelectorAll('.image-thumb').forEach(el => {
+        el.addEventListener('dragstart', e => {
+          dragIdx = parseInt(el.dataset.index);
+          el.classList.add('dragging');
+        });
+
+        el.addEventListener('dragend', () => el.classList.remove('dragging'));
+
+        el.addEventListener('dragover', e => e.preventDefault());
+
+        el.addEventListener('drop', e => {
+          e.preventDefault();
+          const toIdx = parseInt(el.dataset.index);
+          if (dragIdx === null || dragIdx === toIdx) return;
+          const item = modalImages.splice(dragIdx, 1)[0];
+          modalImages.splice(toIdx, 0, item);
+          renderCaseImagesPreview();
+        });
+      });
+    }
+
+    // ============================================
+    // Utils
+    // ============================================
+    function blobToDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    function showToast(msg, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', e => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  </script>
+</body>
+</html>
