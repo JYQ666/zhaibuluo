@@ -83,8 +83,8 @@ function renderHero() {
       <div class="hero__logo">
         ${brand.logo ? `<img src="${escapeHtml(brand.logo)}" alt="${escapeHtml(brand.name)}" onerror="this.style.display='none';this.parentElement.textContent='${escapeHtml(getBrandInitial(brand.name))}'">` : escapeHtml(getBrandInitial(brand.name))}
       </div>
-      <div class="hero__brand">${escapeHtml(brand.name)}</div>
-      <h1 class="hero__title">${escapeHtml(brand.slogan)}</h1>
+      <h1 class="hero__title">${escapeHtml(brand.name)}</h1>
+      <p class="hero__subtitle">${escapeHtml(brand.slogan)}</p>
     </div>
     <div class="hero__scroll">
       <svg viewBox="0 0 24 40" fill="none" stroke="currentColor" stroke-width="2">
@@ -156,6 +156,9 @@ function renderFeatured() {
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </button>
+    </div>
+    <div class="featured__progress" role="slider" aria-label="案例进度" tabindex="0">
+      <div class="featured__progress-bar"></div>
     </div>
   `;
   
@@ -326,28 +329,81 @@ function renderFooter() {
 // 精选案例轮播
 // ============================================
 function initFeaturedCarousel(totalSlides) {
+  if (totalSlides <= 1) {
+    // 单张也需要触发进入动画
+    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+      initFeaturedEnterAnimation();
+    }
+    // 单张也绑定点击进灯箱
+    document.querySelectorAll('.featured__image').forEach((imgContainer, index) => {
+      imgContainer.addEventListener('click', () => {
+        const featuredCases = getFeaturedCases();
+        const images = featuredCases[index]?.case.images || [];
+        openLightbox(images, 0);
+      });
+    });
+    return;
+  }
+  
   let currentIndex = 0;
   const track = document.querySelector('.featured__track');
   const dots = document.querySelectorAll('.featured__dot');
   const prevBtn = document.querySelector('.featured__arrow--prev');
   const nextBtn = document.querySelector('.featured__arrow--next');
+  const slides = document.querySelectorAll('.featured__slide');
+  const progressBar = document.querySelector('.featured__progress-bar');
   
-  function goToSlide(index) {
+  const hasGSAP = typeof gsap !== 'undefined';
+  
+  function goToSlide(index, animate = true) {
     if (index < 0) index = totalSlides - 1;
     if (index >= totalSlides) index = 0;
+    if (index === currentIndex && animate) return;
+    
+    const direction = index > currentIndex || (currentIndex === totalSlides - 1 && index === 0) ? 1 : -1;
     currentIndex = index;
     
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    // 移动 track（spec: 案例切换图片从右侧滑入 0.5s）
+    if (hasGSAP && animate) {
+      gsap.to(track, {
+        xPercent: -currentIndex * 100,
+        duration: 0.5,
+        ease: 'power2.out'
+      });
+    } else {
+      track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    }
     
     // 更新 dots
     dots.forEach((dot, i) => {
       dot.classList.toggle('is-active', i === currentIndex);
     });
     
-    // 更新 active slide
-    document.querySelectorAll('.featured__slide').forEach((slide, i) => {
-      slide.classList.toggle('is-active', i === currentIndex);
+    // 更新 active slide + 文字淡入（spec: 文字淡入 0.4s, delay 0.1s）
+    slides.forEach((slide, i) => {
+      const isActive = i === currentIndex;
+      slide.classList.toggle('is-active', isActive);
+      
+      if (isActive && hasGSAP && animate) {
+        const info = slide.querySelector('.featured__info');
+        if (info) {
+          gsap.fromTo(info,
+            { opacity: 0, x: 20 * direction },
+            { opacity: 1, x: 0, duration: 0.4, delay: 0.1, ease: 'power2.out' }
+          );
+        }
+      }
     });
+    
+    // 更新进度条
+    if (progressBar) {
+      const progress = (currentIndex + 1) / totalSlides * 100;
+      if (hasGSAP) {
+        gsap.to(progressBar, { width: `${progress}%`, duration: 0.3, ease: 'power2.out' });
+      } else {
+        progressBar.style.width = `${progress}%`;
+      }
+    }
   }
   
   // 绑定按钮事件
@@ -398,6 +454,48 @@ function initFeaturedCarousel(totalSlides) {
     }
   }, { passive: true });
   
+  // 进度条拖拽（spec: 底部进度条拖拽）
+  const progressTrack = document.querySelector('.featured__progress');
+  if (progressTrack) {
+    let isDragging = false;
+    
+    const handleProgressDrag = (clientX) => {
+      const rect = progressTrack.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const newIndex = Math.round(ratio * (totalSlides - 1));
+      if (newIndex !== currentIndex) {
+        goToSlide(newIndex);
+      }
+    };
+    
+    progressTrack.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      handleProgressDrag(e.clientX);
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) handleProgressDrag(e.clientX);
+    });
+    
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+    
+    // 触摸拖拽
+    progressTrack.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      handleProgressDrag(e.touches[0].clientX);
+    }, { passive: true });
+    
+    progressTrack.addEventListener('touchmove', (e) => {
+      if (isDragging) handleProgressDrag(e.touches[0].clientX);
+    }, { passive: true });
+    
+    progressTrack.addEventListener('touchend', () => {
+      isDragging = false;
+    }, { passive: true });
+  }
+  
   // 点击图片进入灯箱
   document.querySelectorAll('.featured__image').forEach((imgContainer, index) => {
     imgContainer.addEventListener('click', () => {
@@ -406,6 +504,52 @@ function initFeaturedCarousel(totalSlides) {
       openLightbox(images, 0);
     });
   });
+  
+  // 使用 ScrollTrigger 触发首次进入动画
+  if (hasGSAP && typeof ScrollTrigger !== 'undefined') {
+    initFeaturedEnterAnimation();
+  }
+}
+
+// 精选区进入动画（ScrollTrigger 触发）
+function initFeaturedEnterAnimation() {
+  const featured = document.getElementById('featured');
+  if (!featured) return;
+  
+  // header 进入动画
+  const header = featured.querySelector('.featured__header');
+  if (header) {
+    gsap.fromTo(header,
+      { opacity: 0, y: 30 },
+      {
+        opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',
+        scrollTrigger: {
+          trigger: featured,
+          start: 'top 80%',
+          once: true
+        }
+      }
+    );
+  }
+  
+  // 首张 slide 的文字淡入
+  const firstSlide = featured.querySelector('.featured__slide.is-active') || featured.querySelector('.featured__slide');
+  if (firstSlide) {
+    const info = firstSlide.querySelector('.featured__info');
+    if (info) {
+      gsap.fromTo(info,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1, y: 0, duration: 0.6, delay: 0.3, ease: 'power2.out',
+          scrollTrigger: {
+            trigger: featured,
+            start: 'top 60%',
+            once: true
+          }
+        }
+      );
+    }
+  }
 }
 
 // ============================================
