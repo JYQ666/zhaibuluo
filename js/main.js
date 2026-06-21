@@ -740,6 +740,7 @@ function initCaseSwipers() {
     const swiper = new Swiper(el, {
       slidesPerView: 1,
       loop: true,
+      speed: 500,
       navigation: {
         nextEl: el.querySelector('.swiper-button-next'),
         prevEl: el.querySelector('.swiper-button-prev'),
@@ -759,7 +760,7 @@ function initCaseSwipers() {
         init: function(swiper) {
           fitSwiperImages(swiper);
         },
-        slideChange: function(swiper) {
+        slideChangeTransitionStart: function(swiper) {
           fitSwiperImages(swiper);
         }
       }
@@ -768,48 +769,48 @@ function initCaseSwipers() {
   });
 }
 
-// 根据图片宽高比动态调整 Swiper slide 高度，避免裁切
+// 根据当前 active 图片的宽高比动态调整容器高度，横图竖图都完美适配无白边
 function fitSwiperImages(swiper) {
   const container = swiper.el;
-  const containerH = container.clientHeight;
   const containerW = container.clientWidth;
-  const slides = swiper.slides;
-  if (!slides || slides.length === 0) return;
+  const activeSlide = swiper.slides[swiper.activeIndex];
+  if (!activeSlide) return;
+  const img = activeSlide.querySelector('img');
+  if (!img) return;
 
-  // 找出所有图片中最大的高度需求（取最小宽高比 = 最"竖"的图）
-  let maxSlideH = 0;
-  let allLoaded = true;
-
-  slides.forEach(slide => {
-    const img = slide.querySelector('img');
-    if (!img) return;
-    if (!img.naturalWidth) {
-      allLoaded = false;
-      img.addEventListener('load', function handler() {
-        img.removeEventListener('load', handler);
-        fitSwiperImages(swiper);
-      }, { once: true });
-      return;
-    }
+  function applyDimensions() {
     const ratio = img.naturalWidth / img.naturalHeight;
-    const h = ratio >= 1 ? containerW / ratio : containerH;
-    if (h > maxSlideH) maxSlideH = h;
-  });
+    const targetH = containerW / ratio;
+    // 限制高度范围
+    const minH = 300;
+    const maxH = window.innerHeight * 0.85;
+    const finalH = Math.max(minH, Math.min(targetH, maxH));
 
-  if (!allLoaded) return;
+    container.style.height = finalH + 'px';
+    // 所有 slide 统一高度（Swiper 要求）
+    swiper.slides.forEach(slide => {
+      slide.style.height = finalH + 'px';
+    });
+    // 图片填满 slide，横图竖图都无白边
+    swiper.slides.forEach(slide => {
+      const slideImg = slide.querySelector('img');
+      if (slideImg) {
+        slideImg.style.width = '100%';
+        slideImg.style.height = '100%';
+        slideImg.style.objectFit = 'cover';
+      }
+    });
+    swiper.update();
+  }
 
-  // 统一所有 slide 的高度（包括 loop 克隆的 slide）
-  slides.forEach(slide => {
-    slide.style.height = maxSlideH + 'px';
-    const img = slide.querySelector('img');
-    if (img) {
-      img.style.maxWidth = '100%';
-      img.style.maxHeight = '100%';
-      img.style.width = 'auto';
-      img.style.height = 'auto';
-      img.style.objectFit = 'contain';
-    }
-  });
+  if (img.naturalWidth) {
+    applyDimensions();
+  } else {
+    img.addEventListener('load', function handler() {
+      img.removeEventListener('load', handler);
+      applyDimensions();
+    }, { once: true });
+  }
 }
 
 // 简单轮播（Swiper 未加载时的降级方案）
