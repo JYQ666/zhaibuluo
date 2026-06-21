@@ -768,35 +768,48 @@ function initCaseSwipers() {
   });
 }
 
-// 根据图片宽高比动态调整 Swiper slide 尺寸，避免裁切
+// 根据图片宽高比动态调整 Swiper slide 高度，避免裁切
 function fitSwiperImages(swiper) {
   const container = swiper.el;
   const containerH = container.clientHeight;
   const containerW = container.clientWidth;
-  const activeSlide = swiper.slides[swiper.activeIndex];
-  if (!activeSlide) return;
-  const img = activeSlide.querySelector('img');
-  if (!img) return;
-  // 图片未加载时等待加载完成
-  if (!img.naturalWidth) {
-    img.addEventListener('load', function handler() {
-      img.removeEventListener('load', handler);
-      fitSwiperImages(swiper);
-    }, { once: true });
-    return;
-  }
-  const ratio = img.naturalWidth / img.naturalHeight;
-  const slideH = ratio >= 1 ? containerW / ratio : containerH;
-  const slideW = ratio >= 1 ? containerW : containerH * ratio;
-  // 设置 slide 尺寸
-  activeSlide.style.width = slideW + 'px';
-  activeSlide.style.height = slideH + 'px';
-  // 图片完整显示
-  img.style.maxWidth = '100%';
-  img.style.maxHeight = '100%';
-  img.style.width = 'auto';
-  img.style.height = 'auto';
-  img.style.objectFit = 'contain';
+  const slides = swiper.slides;
+  if (!slides || slides.length === 0) return;
+
+  // 找出所有图片中最大的高度需求（取最小宽高比 = 最"竖"的图）
+  let maxSlideH = 0;
+  let allLoaded = true;
+
+  slides.forEach(slide => {
+    const img = slide.querySelector('img');
+    if (!img) return;
+    if (!img.naturalWidth) {
+      allLoaded = false;
+      img.addEventListener('load', function handler() {
+        img.removeEventListener('load', handler);
+        fitSwiperImages(swiper);
+      }, { once: true });
+      return;
+    }
+    const ratio = img.naturalWidth / img.naturalHeight;
+    const h = ratio >= 1 ? containerW / ratio : containerH;
+    if (h > maxSlideH) maxSlideH = h;
+  });
+
+  if (!allLoaded) return;
+
+  // 统一所有 slide 的高度（包括 loop 克隆的 slide）
+  slides.forEach(slide => {
+    slide.style.height = maxSlideH + 'px';
+    const img = slide.querySelector('img');
+    if (img) {
+      img.style.maxWidth = '100%';
+      img.style.maxHeight = '100%';
+      img.style.width = 'auto';
+      img.style.height = 'auto';
+      img.style.objectFit = 'contain';
+    }
+  });
 }
 
 // 简单轮播（Swiper 未加载时的降级方案）

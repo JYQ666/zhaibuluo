@@ -762,8 +762,6 @@ p {
   align-items: center;
   justify-content: center;
   background: rgba(0,0,0,0.04);
-  width: auto !important;
-  height: auto !important;
 }
 
 .case-item__swiper .swiper-slide img {
