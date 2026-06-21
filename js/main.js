@@ -757,8 +757,9 @@ function initCaseSwipers() {
             openLightbox(caseData.images, realIndex);
           }
         },
-        imagesReady: function(swiper) {
-          fitSwiperByActive(swiper);
+        afterInit: function(swiper) {
+          // 等所有图片加载完再计算，确保 clone slides 也包含在内
+          waitForAllImages(swiper).then(() => fitSwiperByActive(swiper));
         },
         slideChangeTransitionEnd: function(swiper) {
           fitSwiperByActive(swiper);
@@ -766,6 +767,47 @@ function initCaseSwipers() {
       }
     });
     caseSwipers.push(swiper);
+  });
+}
+
+// 等待轮播中所有图片（含 loop 克隆）加载完成
+function waitForAllImages(swiper) {
+  return new Promise((resolve) => {
+    const slides = swiper.slides;
+    if (!slides || slides.length === 0) {
+      resolve();
+      return;
+    }
+
+    const imgs = Array.from(slides).map(s => s.querySelector('img')).filter(Boolean);
+    if (imgs.length === 0) {
+      resolve();
+      return;
+    }
+
+    let pending = 0;
+    imgs.forEach(img => {
+      if (img.complete && img.naturalWidth) {
+        // 已加载
+      } else {
+        pending++;
+        img.addEventListener('load', function handler() {
+          img.removeEventListener('load', handler);
+          pending--;
+          if (pending === 0) resolve();
+        });
+        img.addEventListener('error', function handler() {
+          img.removeEventListener('error', handler);
+          pending--;
+          if (pending === 0) resolve();
+        });
+      }
+    });
+
+    // 如果所有图片都已加载，立即 resolve
+    if (pending === 0) {
+      resolve();
+    }
   });
 }
 
