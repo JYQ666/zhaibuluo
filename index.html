@@ -18,17 +18,22 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js" defer></script>
   
+  <!-- Three.js + Vanta.js (开屏动画) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.fog.min.js"></script>
+  
   <!-- Main Styles -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Splash Screen (开屏动画) -->
+  <!-- Splash Screen (Vanta.js Fog 开屏动画) -->
   <div class="splash" id="splash">
-    <div class="splash__logo" id="splash-logo">
-      <!-- Logo will be injected by JS -->
+    <div class="splash__content">
+      <div class="splash__logo" id="splash-logo">
+        <!-- Logo will be injected by JS -->
+      </div>
+      <div class="splash__name" id="splash-name"></div>
     </div>
-    <div class="splash__name" id="splash-name"></div>
-    <div class="splash__line"></div>
   </div>
   
   <!-- Hero Section -->

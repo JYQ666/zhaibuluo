@@ -1079,33 +1079,33 @@ p {
 }
 
 /* ============================================
-   Splash Screen — 开屏动画（Canvas 动态效果）
+   Splash Screen — Vanta.js Fog 开屏动画
    ============================================ */
 .splash {
   position: fixed;
   inset: 0;
   z-index: 10000;
-  background: rgb(25, 70, 60);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
 }
 
 .splash.is-hidden {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.6s var(--ease-out-expo), visibility 0.6s;
+  transition: opacity 0.8s var(--ease-out-expo), visibility 0.8s;
 }
 
-/* Canvas 动态背景 */
-.splash__canvas {
+/* Vanta.js 会注入 canvas 到这里 */
+
+/* 内容层（Logo + 品牌名） */
+.splash__content {
   position: absolute;
   inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
 }
 
 /* Logo 容器 */
@@ -1113,8 +1113,7 @@ p {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: var(--color-white);
-  background: var(--color-white-rgb);
+  background: rgba(255, 255, 255, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1122,11 +1121,10 @@ p {
   font-size: 2.5rem;
   color: rgb(25, 70, 60);
   opacity: 0;
-  transform: scale(0.8);
+  transform: scale(0.6);
   overflow: hidden;
-  position: relative;
-  z-index: 2;
-  transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+  transition: opacity 1s var(--ease-out-expo) 0.5s,
+              transform 1s var(--ease-out-expo) 0.5s;
 }
 
 .splash.is-visible .splash__logo {
@@ -1143,15 +1141,15 @@ p {
 /* 品牌名 */
 .splash__name {
   font-family: var(--font-display);
-  font-size: 1.5rem;
-  color: var(--color-white);
-  letter-spacing: 0.15em;
-  margin-top: var(--space-md);
+  font-size: 1.6rem;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.2em;
+  margin-top: var(--space-lg);
   opacity: 0;
-  transform: translateY(10px);
-  position: relative;
-  z-index: 2;
-  transition: opacity 0.6s var(--ease-out-expo) 0.3s, transform 0.6s var(--ease-out-expo) 0.3s;
+  transform: translateY(15px);
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.8s var(--ease-out-expo) 1s,
+              transform 0.8s var(--ease-out-expo) 1s;
 }
 
 .splash.is-visible .splash__name {
@@ -1169,5 +1167,6 @@ p {
   
   .splash__name {
     font-size: 1.2rem;
+    letter-spacing: 0.15em;
   }
 }
