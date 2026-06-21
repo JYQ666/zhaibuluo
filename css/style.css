@@ -762,6 +762,8 @@ p {
   align-items: center;
   justify-content: center;
   background: rgba(0,0,0,0.04);
+  width: auto !important;
+  height: auto !important;
 }
 
 .case-item__swiper .swiper-slide img {
@@ -770,6 +772,7 @@ p {
   width: auto;
   height: auto;
   object-fit: contain;
+  display: block;
 }
 
 .case-item__swiper .swiper-button-next,
@@ -941,6 +944,8 @@ p {
 .lightbox__image {
   max-width: 90vw;
   max-height: 90vh;
+  width: auto;
+  height: auto;
   object-fit: contain;
   transform: scale(0.9);
   transition: transform var(--duration-normal) var(--ease-out-expo);
