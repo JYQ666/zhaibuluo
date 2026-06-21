@@ -758,10 +758,10 @@ function initCaseSwipers() {
           }
         },
         init: function(swiper) {
-          fitSwiperImages(swiper);
+          waitForImagesThenFit(swiper);
         },
-        slideChangeTransitionStart: function(swiper) {
-          fitSwiperImages(swiper);
+        slideChangeTransitionEnd: function(swiper) {
+          fitSwiperByActive(swiper);
         }
       }
     });
@@ -769,48 +769,66 @@ function initCaseSwipers() {
   });
 }
 
-// 根据当前 active 图片的宽高比动态调整容器高度，横图竖图都完美适配无白边
-function fitSwiperImages(swiper) {
+// 等待轮播中所有图片加载完成后再计算尺寸
+function waitForImagesThenFit(swiper) {
+  const slides = swiper.slides;
+  if (!slides || slides.length === 0) return;
+
+  const imgs = Array.from(slides).map(s => s.querySelector('img')).filter(Boolean);
+  if (imgs.length === 0) return;
+
+  let loaded = 0;
+  const total = imgs.length;
+
+  function onAllLoaded() {
+    fitSwiperByActive(swiper);
+  }
+
+  imgs.forEach(img => {
+    if (img.complete && img.naturalWidth) {
+      loaded++;
+      if (loaded === total) onAllLoaded();
+    } else {
+      img.addEventListener('load', function handler() {
+        img.removeEventListener('load', handler);
+        loaded++;
+        if (loaded === total) onAllLoaded();
+      });
+    }
+  });
+}
+
+// 根据当前 active 图片的宽高比调整容器高度，图片完整显示不裁切
+function fitSwiperByActive(swiper) {
   const container = swiper.el;
   const containerW = container.clientWidth;
   const activeSlide = swiper.slides[swiper.activeIndex];
   if (!activeSlide) return;
   const img = activeSlide.querySelector('img');
-  if (!img) return;
+  if (!img || !img.naturalWidth) return;
 
-  function applyDimensions() {
-    const ratio = img.naturalWidth / img.naturalHeight;
-    const targetH = containerW / ratio;
-    // 限制高度范围
-    const minH = 300;
-    const maxH = window.innerHeight * 0.85;
-    const finalH = Math.max(minH, Math.min(targetH, maxH));
+  const ratio = img.naturalWidth / img.naturalHeight;
+  const targetH = containerW / ratio;
 
-    container.style.height = finalH + 'px';
-    // 所有 slide 统一高度（Swiper 要求）
-    swiper.slides.forEach(slide => {
-      slide.style.height = finalH + 'px';
-    });
-    // 图片填满 slide，横图竖图都无白边
-    swiper.slides.forEach(slide => {
-      const slideImg = slide.querySelector('img');
-      if (slideImg) {
-        slideImg.style.width = '100%';
-        slideImg.style.height = '100%';
-        slideImg.style.objectFit = 'cover';
-      }
-    });
-    swiper.update();
-  }
+  // 限制高度范围
+  const minH = 300;
+  const maxH = window.innerHeight * 0.85;
+  const finalH = Math.max(minH, Math.min(targetH, maxH));
 
-  if (img.naturalWidth) {
-    applyDimensions();
-  } else {
-    img.addEventListener('load', function handler() {
-      img.removeEventListener('load', handler);
-      applyDimensions();
-    }, { once: true });
-  }
+  container.style.height = finalH + 'px';
+
+  // 所有 slide 统一高度
+  swiper.slides.forEach(slide => {
+    slide.style.height = finalH + 'px';
+    const slideImg = slide.querySelector('img');
+    if (slideImg) {
+      slideImg.style.width = '100%';
+      slideImg.style.height = '100%';
+      slideImg.style.objectFit = 'contain';
+    }
+  });
+
+  swiper.update();
 }
 
 // 简单轮播（Swiper 未加载时的降级方案）
