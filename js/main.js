@@ -153,11 +153,142 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================================
-// 开屏动画
+// 开屏动画（Canvas 动态效果）
 // ============================================
+class SplashAnimation {
+  constructor(container, brand) {
+    this.container = container;
+    this.brand = brand;
+    this.canvas = document.createElement('canvas');
+    this.canvas.className = 'splash__canvas';
+    this.ctx = this.canvas.getContext('2d');
+    this.particles = [];
+    this.animationId = null;
+    this.startTime = Date.now();
+    this.duration = 3000; // 3 秒
+    this.phase = 0; // 0: 入场, 1: 展示, 2: 退场
+    
+    this.init();
+  }
+  
+  init() {
+    this.resize();
+    this.createParticles();
+    this.container.insertBefore(this.canvas, this.container.firstChild);
+    this.animate();
+    
+    window.addEventListener('resize', () => this.resize());
+  }
+  
+  resize() {
+    const dpr = window.devicePixelRatio || 1;
+    this.canvas.width = window.innerWidth * dpr;
+    this.canvas.height = window.innerHeight * dpr;
+    this.canvas.style.width = window.innerWidth + 'px';
+    this.canvas.style.height = window.innerHeight + 'px';
+    this.ctx.scale(dpr, dpr);
+    this.centerX = window.innerWidth / 2;
+    this.centerY = window.innerHeight / 2;
+  }
+  
+  createParticles() {
+    // 暖铜色微粒环绕 logo
+    for (let i = 0; i < 30; i++) {
+      this.particles.push({
+        angle: (Math.PI * 2 / 30) * i,
+        radius: 80 + Math.random() * 60,
+        speed: 0.008 + Math.random() * 0.005,
+        size: 2 + Math.random() * 3,
+        opacity: 0.3 + Math.random() * 0.5,
+        color: Math.random() > 0.5 ? '190, 120, 65' : '255, 200, 100'
+      });
+    }
+  }
+  
+  animate() {
+    const elapsed = Date.now() - this.startTime;
+    const progress = Math.min(elapsed / this.duration, 1);
+    
+    // 清空画布
+    this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    
+    // 绘制微粒
+    this.particles.forEach(p => {
+      p.angle += p.speed;
+      
+      // 入场阶段微粒从中心扩散
+      let currentRadius = p.radius;
+      let currentOpacity = p.opacity;
+      
+      if (progress < 0.2) {
+        // 入场：微粒从中心向外扩散
+        const t = progress / 0.2;
+        currentRadius = p.radius * t;
+        currentOpacity = p.opacity * t;
+      } else if (progress > 0.8) {
+        // 退场：微粒向中心收缩
+        const t = (progress - 0.8) / 0.2;
+        currentRadius = p.radius * (1 - t * 0.5);
+        currentOpacity = p.opacity * (1 - t);
+      }
+      
+      const x = this.centerX + Math.cos(p.angle) * currentRadius;
+      const y = this.centerY + Math.sin(p.angle) * currentRadius;
+      
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, p.size, 0, Math.PI * 2);
+      this.ctx.fillStyle = `rgba(${p.color}, ${currentOpacity})`;
+      this.ctx.fill();
+      
+      // 微粒光晕
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, p.size * 3, 0, Math.PI * 2);
+      this.ctx.fillStyle = `rgba(${p.color}, ${currentOpacity * 0.2})`;
+      this.ctx.fill();
+    });
+    
+    // Logo 呼吸光晕
+    const breathe = Math.sin(elapsed * 0.003) * 0.3 + 0.7;
+    const glowRadius = 60 + breathe * 20;
+    
+    const gradient = this.ctx.createRadialGradient(
+      this.centerX, this.centerY, 0,
+      this.centerX, this.centerY, glowRadius
+    );
+    gradient.addColorStop(0, `rgba(190, 120, 65, ${0.3 * breathe})`);
+    gradient.addColorStop(0.5, `rgba(190, 120, 65, ${0.1 * breathe})`);
+    gradient.addColorStop(1, 'transparent');
+    
+    this.ctx.fillStyle = gradient;
+    this.ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    
+    // 继续动画
+    if (progress < 1) {
+      this.animationId = requestAnimationFrame(() => this.animate());
+    } else {
+      this.onComplete();
+    }
+  }
+  
+  onComplete() {
+    // 动画完成，触发退场
+    this.container.classList.add('is-hidden');
+    setTimeout(() => {
+      this.container.remove();
+    }, 600);
+  }
+  
+  destroy() {
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+    }
+  }
+}
+
 function initSplash() {
   const splash = document.getElementById('splash');
   const splashLogo = document.getElementById('splash-logo');
+  const splashName = document.getElementById('splash-name');
   
   if (!splash || !splashLogo || !appData) return;
   
@@ -170,20 +301,18 @@ function initSplash() {
     splashLogo.textContent = getBrandInitial(brand.name);
   }
   
-  // 触发进入动画
-  requestAnimationFrame(() => {
-    splash.classList.add('is-visible');
-  });
+  // 注入品牌名
+  if (splashName) {
+    splashName.textContent = brand.name;
+  }
   
-  // 动画结束后隐藏开屏
+  // 启动 Canvas 动画
+  const splashAnim = new SplashAnimation(splash, brand);
+  
+  // Logo 和品牌名淡入
   setTimeout(() => {
-    splash.classList.add('is-hidden');
-    
-    // 动画完成后移除 DOM（释放内存）
-    setTimeout(() => {
-      splash.remove();
-    }, 600);
-  }, 2200); // 0.2s(logo 淡入) + 1.2s(光线扫过) + 0.8s(停留)
+    splash.classList.add('is-visible');
+  }, 100);
 }
 
 // ============================================
