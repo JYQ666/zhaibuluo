@@ -5,10 +5,10 @@
     "slogan": "享品质生活就选宅部落"
   },
   "wechat_qrcode": "",
-  "communities": [
+  "categories": [
     {
-      "id": "community-1781951080446",
-      "name": "万家天府",
+      "id": "category-cabinet",
+      "name": "橱柜",
       "cases": [
         {
           "id": "case-1781991818455",
@@ -19,6 +19,13 @@
           ]
         }
       ]
-    }
+    },
+    { "id": "category-tv", "name": "电视柜", "cases": [] },
+    { "id": "category-wine", "name": "酒柜", "cases": [] },
+    { "id": "category-wardrobe", "name": "衣柜", "cases": [] },
+    { "id": "category-bookcase", "name": "书柜", "cases": [] },
+    { "id": "category-shoe", "name": "鞋柜", "cases": [] },
+    { "id": "category-sideboard", "name": "餐边柜", "cases": [] },
+    { "id": "category-balcony", "name": "阳台柜", "cases": [] }
   ]
 }

@@ -7,7 +7,7 @@
 // 全局状态
 // ============================================
 let appData = null;
-let currentCommunity = null;
+let currentCategory = null;
 let featuredSwiper = null;
 let caseSwipers = [];
 let lightboxState = {
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 渲染页面
     renderHero();
     renderFeatured();
-    renderCommunity();
+    renderCategories();
     renderFooter();
     
     // 初始化交互
@@ -277,14 +277,14 @@ function renderFeatured() {
   }
   
   const slides = featuredCases.map((item, index) => {
-    const community = findCommunityByCase(item.case.id);
+    const category = findCategoryByCase(item.case.id);
     return `
       <div class="featured__slide ${index === 0 ? 'is-active' : ''}" data-index="${index}">
         <div class="featured__image">
           <img src="${escapeHtml(item.case.images[0])}" alt="${escapeHtml(item.case.title)}" loading="lazy" onerror="this.style.opacity=0.3">
         </div>
         <div class="featured__info">
-          <h3 class="featured__community">${escapeHtml(community?.name || '')}</h3>
+          <h3 class="featured__community">${escapeHtml(category?.name || '')}</h3>
           <div class="featured__meta">
             <span>${escapeHtml(item.case.title)}</span>
           </div>
@@ -334,22 +334,22 @@ function renderFeatured() {
 }
 
 // ============================================
-// 渲染：Community Section
+// 渲染：Category Section（柜体类别区）
 // ============================================
-function renderCommunity() {
-  const community = document.getElementById('community');
-  if (!community || !appData) return;
+function renderCategories() {
+  const section = document.getElementById('community');
+  if (!section || !appData) return;
   
-  const communities = appData.communities || [];
+  const categories = appData.categories || [];
   
-  const cards = communities.map(c => {
+  const cards = categories.map(c => {
     const caseCount = c.cases.length;
     const isLarge = caseCount >= 5;
     const representativeImage = c.cases[0]?.images[0] || '';
     
     return `
       <div class="community__card ${isLarge ? 'community__card--large' : ''} ${!representativeImage ? 'community__card--small' : ''}" 
-           data-community-id="${escapeHtml(c.id)}">
+           data-category-id="${escapeHtml(c.id)}">
         ${representativeImage ? `
           <div class="community__card-image">
             <img src="${escapeHtml(representativeImage)}" alt="${escapeHtml(c.name)}" loading="lazy" onerror="this.parentElement.style.display='none'">
@@ -363,17 +363,17 @@ function renderCommunity() {
     `;
   }).join('');
   
-  community.innerHTML = `
+  section.innerHTML = `
     <div class="container">
       <div class="community__header reveal">
-        <div class="community__chapter">按小区浏览</div>
-        <h2 class="community__title">找到您的小区</h2>
+        <div class="community__chapter">按柜体浏览</div>
+        <h2 class="community__title">找到您需要的柜体类型</h2>
         <div class="community__search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/>
             <line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <input type="text" id="community-search" placeholder="搜索小区名称...">
+          <input type="text" id="community-search" placeholder="搜索柜体类型...">
         </div>
       </div>
       <div class="community__grid" id="community-grid">
@@ -383,25 +383,25 @@ function renderCommunity() {
   `;
   
   // 绑定搜索事件
-  initCommunitySearch();
+  initCategorySearch();
   
   // 绑定卡片点击事件
-  initCommunityCards();
+  initCategoryCards();
 }
 
 // ============================================
-// 渲染：Cases Section (点击小区后显示)
+// 渲染：Cases Section（点击柜体类别后显示）
 // ============================================
-function renderCases(communityId) {
+function renderCases(categoryId) {
   const casesSection = document.getElementById('cases');
   if (!casesSection || !appData) return;
   
-  const community = appData.communities.find(c => c.id === communityId);
-  if (!community) return;
+  const category = appData.categories.find(c => c.id === categoryId);
+  if (!category) return;
   
-  currentCommunity = community;
+  currentCategory = category;
   
-  const caseItems = community.cases.map((c, index) => {
+  const caseItems = category.cases.map((c, index) => {
     const slides = c.images.map(img => `
       <div class="swiper-slide">
         <img src="${escapeHtml(img)}" alt="${escapeHtml(c.title)}" loading="lazy" data-src="${escapeHtml(img)}" onerror="this.style.opacity=0.3">
@@ -426,12 +426,12 @@ function renderCases(communityId) {
   casesSection.innerHTML = `
     <div class="container">
       <div class="cases__header">
-        <h2 class="cases__community-name">${escapeHtml(community.name)}</h2>
+        <h2 class="cases__community-name">${escapeHtml(category.name)}</h2>
         <button class="cases__back" id="cases-back">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
-          返回小区列表
+          返回柜体列表
         </button>
       </div>
       <div class="cases__list">
@@ -447,7 +447,7 @@ function renderCases(communityId) {
   document.getElementById('cases-back')?.addEventListener('click', () => {
     casesSection.style.display = 'none';
     document.getElementById('community')?.scrollIntoView({ behavior: 'smooth' });
-    currentCommunity = null;
+    currentCategory = null;
   });
   
   // 显示 cases section
@@ -750,7 +750,7 @@ function initCaseSwipers() {
       },
       on: {
         click: function(swiper) {
-          const caseData = currentCommunity?.cases[index];
+          const caseData = currentCategory?.cases[index];
           if (caseData) {
             const realIndex = swiper.realIndex;
             openLightbox(caseData.images, realIndex);
@@ -793,7 +793,7 @@ function initSimpleCarousel() {
     slides.forEach((slide, i) => {
       slide.addEventListener('click', () => {
         const caseIndex = parseInt(swiperEl.dataset.caseIndex);
-        const caseData = currentCommunity?.cases[caseIndex];
+        const caseData = currentCategory?.cases[caseIndex];
         if (caseData) {
           openLightbox(caseData.images, i);
         }
@@ -803,9 +803,9 @@ function initSimpleCarousel() {
 }
 
 // ============================================
-// 小区搜索
+// 柜体类别搜索
 // ============================================
-function initCommunitySearch() {
+function initCategorySearch() {
   const searchInput = document.getElementById('community-search');
   const grid = document.getElementById('community-grid');
   
@@ -825,7 +825,7 @@ function initCommunitySearch() {
     let emptyEl = grid?.querySelector('.community__empty');
     if (visibleCount === 0) {
       if (!emptyEl) {
-        grid?.insertAdjacentHTML('beforeend', '<div class="community__empty">未找到匹配的小区</div>');
+        grid?.insertAdjacentHTML('beforeend', '<div class="community__empty">未找到匹配的柜体类型</div>');
       }
     } else if (emptyEl) {
       emptyEl.remove();
@@ -834,14 +834,14 @@ function initCommunitySearch() {
 }
 
 // ============================================
-// 小区卡片点击
+// 柜体类别卡片点击
 // ============================================
-function initCommunityCards() {
+function initCategoryCards() {
   document.querySelectorAll('.community__card').forEach(card => {
     card.addEventListener('click', () => {
-      const communityId = card.dataset.communityId;
-      if (communityId) {
-        renderCases(communityId);
+      const categoryId = card.dataset.categoryId;
+      if (categoryId) {
+        renderCases(categoryId);
       }
     });
   });
@@ -1054,10 +1054,10 @@ function getFeaturedCases() {
   if (!appData) return [];
   
   const featured = [];
-  appData.communities.forEach(community => {
-    community.cases.forEach(c => {
+  appData.categories.forEach(category => {
+    category.cases.forEach(c => {
       if (c.featured) {
-        featured.push({ community, case: c });
+        featured.push({ category, case: c });
       }
     });
   });
@@ -1075,9 +1075,9 @@ function getFeaturedImages() {
   return images;
 }
 
-function findCommunityByCase(caseId) {
+function findCategoryByCase(caseId) {
   if (!appData) return null;
-  return appData.communities.find(c => 
+  return appData.categories.find(c => 
     c.cases.some(caseItem => caseItem.id === caseId)
   );
 }

@@ -533,7 +533,7 @@
         </button>
         <button class="nav-item" data-view="communities" onclick="switchView('communities')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          小区与案例
+          柜体类别与案例
           <span class="badge" id="nav-community-count">0</span>
         </button>
       </nav>
@@ -588,10 +588,10 @@
       <!-- Communities View -->
       <div id="view-communities" class="hidden">
         <div class="page-header">
-          <h2>小区与案例</h2>
+          <h2>柜体类别与案例</h2>
           <button class="btn btn-primary" onclick="openAddCommunity()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            添加小区
+            添加类别
           </button>
         </div>
         <div id="community-list"></div>
@@ -650,7 +650,7 @@
     // State
     // ============================================
     let projectDirHandle = null;
-    let data = { brand: { logo: '', name: '', slogan: '' }, wechat_qrcode: '', communities: [] };
+    let data = { brand: { logo: '', name: '', slogan: '' }, wechat_qrcode: '', categories: [] };
     let originalData = null; // for dirty detection
     let isDirty = false;
 
@@ -819,7 +819,7 @@
         data = JSON.parse(text);
       } catch (e) {
         console.warn('无法读取 cases.json，使用空数据', e);
-        data = { brand: { logo: '', name: '', slogan: '' }, wechat_qrcode: '', communities: [] };
+        data = { brand: { logo: '', name: '', slogan: '' }, wechat_qrcode: '', categories: [] };
       }
 
       // Load brand images as data URLs for preview
@@ -839,7 +839,7 @@
       }
 
       // Load case images
-      for (const community of data.communities) {
+      for (const community of data.categories) {
         for (const caseItem of community.cases) {
           for (const imgPath of caseItem.images) {
             try {
@@ -920,7 +920,7 @@
     function renderAll() {
       renderBrand();
       renderCommunityList();
-      document.getElementById('nav-community-count').textContent = data.communities.length;
+      document.getElementById('nav-community-count').textContent = data.categories.length;
     }
 
     function renderBrand() {
@@ -941,12 +941,12 @@
     function renderCommunityList() {
       const container = document.getElementById('community-list');
 
-      if (data.communities.length === 0) {
-        container.innerHTML = '<div class="empty-state">暂无小区，点击右上角添加</div>';
+      if (data.categories.length === 0) {
+        container.innerHTML = '<div class="empty-state">暂无柜体类别，点击右上角添加</div>';
         return;
       }
 
-      container.innerHTML = data.communities.map(c => {
+      container.innerHTML = data.categories.map(c => {
         const casesHtml = c.cases.map(cs => {
           const thumbs = cs.images.slice(0, 3).map(p => {
             const url = pendingImages[p]?.dataUrl || '';
@@ -989,7 +989,7 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
                 <button class="btn btn-primary" onclick="openAddCase('${escapeHtml(c.id)}')" style="font-size:12px;padding:4px 10px">+ 案例</button>
-                <button class="btn btn-ghost" style="color:var(--danger)" onclick="deleteCommunity('${escapeHtml(c.id)}')" title="删除小区">
+                <button class="btn btn-ghost" style="color:var(--danger)" onclick="deleteCommunity('${escapeHtml(c.id)}')" title="删除类别">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                 </button>
               </div>
@@ -1055,19 +1055,19 @@
     // Community CRUD
     // ============================================
     function openAddCommunity() {
-      const name = prompt('输入小区名称:');
+      const name = prompt('输入柜体类别名称（如：橱柜、电视柜、酒柜）:');
       if (!name || !name.trim()) return;
 
-      const id = generateId('community');
-      data.communities.push({ id, name: name.trim(), cases: [] });
+      const id = generateId('category');
+      data.categories.push({ id, name: name.trim(), cases: [] });
       renderCommunityList();
-      document.getElementById('nav-community-count').textContent = data.communities.length;
+      document.getElementById('nav-community-count').textContent = data.categories.length;
       markDirty();
-      showToast('小区已添加', 'success');
+      showToast('类别已添加', 'success');
     }
 
     function renameCommunity(id) {
-      const c = data.communities.find(x => x.id === id);
+      const c = data.categories.find(x => x.id === id);
       if (!c) return;
       const name = prompt('输入新名称:', c.name);
       if (!name || !name.trim()) return;
@@ -1077,9 +1077,9 @@
     }
 
     function deleteCommunity(id) {
-      const c = data.communities.find(x => x.id === id);
+      const c = data.categories.find(x => x.id === id);
       if (!c) return;
-      if (!confirm(`确定删除小区「${c.name}」及其所有案例吗？`)) return;
+      if (!confirm(`确定删除类别「${c.name}」及其所有案例吗？`)) return;
 
       // Mark images for deletion
       for (const cs of c.cases) {
@@ -1089,11 +1089,11 @@
         }
       }
 
-      data.communities = data.communities.filter(x => x.id !== id);
+      data.categories = data.categories.filter(x => x.id !== id);
       renderCommunityList();
-      document.getElementById('nav-community-count').textContent = data.communities.length;
+      document.getElementById('nav-community-count').textContent = data.categories.length;
       markDirty();
-      showToast('小区已删除', 'success');
+      showToast('类别已删除', 'success');
     }
 
     // ============================================
@@ -1111,7 +1111,7 @@
     }
 
     function openEditCase(communityId, caseId) {
-      const c = data.communities.find(x => x.id === communityId);
+      const c = data.categories.find(x => x.id === communityId);
       if (!c) return;
       const cs = c.cases.find(x => x.id === caseId);
       if (!cs) return;
@@ -1169,7 +1169,7 @@
       if (!title) { showToast('请输入案例标题', 'error'); return; }
       if (modalImages.length === 0) { showToast('请至少上传一张图片', 'error'); return; }
 
-      const community = data.communities.find(x => x.id === modalCommunityId);
+      const community = data.categories.find(x => x.id === modalCommunityId);
       if (!community) return;
 
       const featured = document.getElementById('case-featured').checked;
@@ -1216,7 +1216,7 @@
     }
 
     function toggleFeatured(communityId, caseId) {
-      const c = data.communities.find(x => x.id === communityId);
+      const c = data.categories.find(x => x.id === communityId);
       if (!c) return;
       const cs = c.cases.find(x => x.id === caseId);
       if (!cs) return;
@@ -1227,7 +1227,7 @@
 
     function deleteCase(communityId, caseId) {
       if (!confirm('确定删除这个案例吗？')) return;
-      const c = data.communities.find(x => x.id === communityId);
+      const c = data.categories.find(x => x.id === communityId);
       if (!c) return;
 
       const cs = c.cases.find(x => x.id === caseId);
