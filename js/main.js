@@ -757,8 +757,8 @@ function initCaseSwipers() {
             openLightbox(caseData.images, realIndex);
           }
         },
-        init: function(swiper) {
-          waitForImagesThenFit(swiper);
+        imagesReady: function(swiper) {
+          fitSwiperByActive(swiper);
         },
         slideChangeTransitionEnd: function(swiper) {
           fitSwiperByActive(swiper);
@@ -766,35 +766,6 @@ function initCaseSwipers() {
       }
     });
     caseSwipers.push(swiper);
-  });
-}
-
-// 等待轮播中所有图片加载完成后再计算尺寸
-function waitForImagesThenFit(swiper) {
-  const slides = swiper.slides;
-  if (!slides || slides.length === 0) return;
-
-  const imgs = Array.from(slides).map(s => s.querySelector('img')).filter(Boolean);
-  if (imgs.length === 0) return;
-
-  let loaded = 0;
-  const total = imgs.length;
-
-  function onAllLoaded() {
-    fitSwiperByActive(swiper);
-  }
-
-  imgs.forEach(img => {
-    if (img.complete && img.naturalWidth) {
-      loaded++;
-      if (loaded === total) onAllLoaded();
-    } else {
-      img.addEventListener('load', function handler() {
-        img.removeEventListener('load', handler);
-        loaded++;
-        if (loaded === total) onAllLoaded();
-      });
-    }
   });
 }
 
@@ -815,9 +786,11 @@ function fitSwiperByActive(swiper) {
   const maxH = window.innerHeight * 0.85;
   const finalH = Math.max(minH, Math.min(targetH, maxH));
 
+  // 容器加过渡动画，切换时高度平滑变化
+  container.style.transition = 'height 0.5s ease';
   container.style.height = finalH + 'px';
 
-  // 所有 slide 统一高度
+  // 所有 slide 统一高度（Swiper 要求），图片完整显示不裁切
   swiper.slides.forEach(slide => {
     slide.style.height = finalH + 'px';
     const slideImg = slide.querySelector('img');
