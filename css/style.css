@@ -152,6 +152,12 @@ p {
   justify-content: center;
   overflow: hidden;
   background: rgb(25, 70, 60);
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-out-expo);
+}
+
+.hero.is-loaded {
+  opacity: 1;
 }
 
 .hero__bg-canvas {

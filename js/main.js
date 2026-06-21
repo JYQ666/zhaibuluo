@@ -141,10 +141,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initLightbox();
     initNavigation();
     
-    // 触发 Hero 动画
-    setTimeout(() => {
-      document.querySelector('.hero')?.classList.add('is-loaded');
-    }, 100);
+    // Hero 动画延迟到开屏淡出时触发（交叉淡入淡出）
+    // 由 initSplash 的回调控制
     
   } catch (error) {
     console.error('初始化失败:', error);
@@ -202,8 +200,11 @@ function initSplash() {
     splash.classList.add('is-visible');
   });
   
-  // 4 秒后淡出开屏
+  // 4 秒后淡出开屏（同时触发 Hero 淡入，交叉过渡）
   setTimeout(() => {
+    // 触发 Hero 动画（交叉淡入）
+    document.querySelector('.hero')?.classList.add('is-loaded');
+    
     splash.classList.add('is-hidden');
     
     // 销毁 Vanta 效果
