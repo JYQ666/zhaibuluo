@@ -123,12 +123,12 @@ class HeroFluidAnimation {
 // 初始化
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
-  // 显示加载动画
-  showLoading();
-  
   try {
     // 加载数据
     await loadData();
+    
+    // 初始化开屏动画
+    initSplash();
     
     // 渲染页面
     renderHero();
@@ -141,9 +141,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     initLightbox();
     initNavigation();
     
-    // 隐藏加载动画
-    hideLoading();
-    
     // 触发 Hero 动画
     setTimeout(() => {
       document.querySelector('.hero')?.classList.add('is-loaded');
@@ -151,10 +148,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     
   } catch (error) {
     console.error('初始化失败:', error);
-    hideLoading();
     showError('数据加载失败，请刷新页面重试');
   }
 });
+
+// ============================================
+// 开屏动画
+// ============================================
+function initSplash() {
+  const splash = document.getElementById('splash');
+  const splashLogo = document.getElementById('splash-logo');
+  
+  if (!splash || !splashLogo || !appData) return;
+  
+  const { brand } = appData;
+  
+  // 注入 Logo
+  if (brand.logo) {
+    splashLogo.innerHTML = `<img src="${escapeHtml(brand.logo)}" alt="${escapeHtml(brand.name)}" onerror="this.style.display='none';this.parentElement.textContent='${escapeHtml(getBrandInitial(brand.name))}'">`;
+  } else {
+    splashLogo.textContent = getBrandInitial(brand.name);
+  }
+  
+  // 触发进入动画
+  requestAnimationFrame(() => {
+    splash.classList.add('is-visible');
+  });
+  
+  // 动画结束后隐藏开屏
+  setTimeout(() => {
+    splash.classList.add('is-hidden');
+    
+    // 动画完成后移除 DOM（释放内存）
+    setTimeout(() => {
+      splash.remove();
+    }, 600);
+  }, 2200); // 0.2s(logo 淡入) + 1.2s(光线扫过) + 0.8s(停留)
+}
 
 // ============================================
 // 数据加载
