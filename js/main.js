@@ -755,11 +755,48 @@ function initCaseSwipers() {
             const realIndex = swiper.realIndex;
             openLightbox(caseData.images, realIndex);
           }
+        },
+        init: function(swiper) {
+          fitSwiperImages(swiper);
+        },
+        slideChange: function(swiper) {
+          fitSwiperImages(swiper);
         }
       }
     });
     caseSwipers.push(swiper);
   });
+}
+
+// 根据图片宽高比动态调整 Swiper slide 尺寸，避免裁切
+function fitSwiperImages(swiper) {
+  const container = swiper.el;
+  const containerH = container.clientHeight;
+  const containerW = container.clientWidth;
+  const activeSlide = swiper.slides[swiper.activeIndex];
+  if (!activeSlide) return;
+  const img = activeSlide.querySelector('img');
+  if (!img) return;
+  // 图片未加载时等待加载完成
+  if (!img.naturalWidth) {
+    img.addEventListener('load', function handler() {
+      img.removeEventListener('load', handler);
+      fitSwiperImages(swiper);
+    }, { once: true });
+    return;
+  }
+  const ratio = img.naturalWidth / img.naturalHeight;
+  const slideH = ratio >= 1 ? containerW / ratio : containerH;
+  const slideW = ratio >= 1 ? containerW : containerH * ratio;
+  // 设置 slide 尺寸
+  activeSlide.style.width = slideW + 'px';
+  activeSlide.style.height = slideH + 'px';
+  // 图片完整显示
+  img.style.maxWidth = '100%';
+  img.style.maxHeight = '100%';
+  img.style.width = 'auto';
+  img.style.height = 'auto';
+  img.style.objectFit = 'contain';
 }
 
 // 简单轮播（Swiper 未加载时的降级方案）
