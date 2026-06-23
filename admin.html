@@ -1029,8 +1029,11 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      const ext = file.name.split('.').pop() || 'png';
-      const path = type === 'logo' ? 'images/brand/logo.' + ext : 'images/brand/wechat-qrcode.' + ext;
+      // Logo 和二维码都压缩：Logo 长边 300px，二维码长边 400px
+      const maxSize = type === 'logo' ? 300 : 400;
+      const { blob: compressedBlob } = await compressImage(file, maxSize, 0.85);
+
+      const path = type === 'logo' ? 'images/brand/logo.jpg' : 'images/brand/wechat-qrcode.jpg';
 
       // If path changed (different extension), mark old for deletion
       if (type === 'logo' && data.brand.logo && data.brand.logo !== path) {
@@ -1040,8 +1043,8 @@
         deletedImages.add(data.wechat_qrcode);
       }
 
-      const dataUrl = await blobToDataUrl(file);
-      pendingImages[path] = { blob: file, dataUrl, saved: false };
+      const dataUrl = await blobToDataUrl(compressedBlob);
+      pendingImages[path] = { blob: compressedBlob, dataUrl, saved: false };
 
       if (type === 'logo') data.brand.logo = path;
       else data.wechat_qrcode = path;
