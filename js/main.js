@@ -359,8 +359,8 @@ function renderCategories() {
   }
   
   const cards = categories.map(c => {
-    const caseCount = c.cases.length;
-    const isLarge = caseCount >= 5;
+    const totalImages = c.cases.reduce((sum, cs) => sum + (cs.images?.length || 0), 0);
+    const isLarge = totalImages >= 5;
     const representativeImage = c.cases[0]?.images[0] || '';
     
     return `
@@ -371,7 +371,7 @@ function renderCategories() {
         </div>
         <div class="community__card-info">
           <div class="community__card-name">${escapeHtml(c.name)}</div>
-          <div class="community__card-count">${caseCount} 张效果图</div>
+          <div class="community__card-count">${totalImages} 张效果图</div>
         </div>
       </div>
     `;
