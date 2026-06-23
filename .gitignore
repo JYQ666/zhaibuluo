@@ -3,5 +3,6 @@ impeccable-temp/
 .git/
 
 tools/
+node_modules/
 *.zip
 *.tar
