@@ -158,12 +158,12 @@ function renderHero() {
     </div>
   `;
   
-  // 视频播放控制：确保自动播放
-  const video = hero.querySelector('.hero__video');
-  if (video) {
-    video.play().catch(() => {
-      // 自动播放被阻止时静默处理
-    });
+  // 视频播放控制：仅桌面端自动播放，移动端已用 CSS 隐藏
+  if (window.innerWidth > 768) {
+    const video = hero.querySelector('.hero__video');
+    if (video) {
+      video.play().catch(() => {});
+    }
   }
 }
 

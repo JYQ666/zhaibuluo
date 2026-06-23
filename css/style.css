@@ -287,21 +287,32 @@ p {
   50% { transform: translateX(-50%) translateY(10px); }
 }
 
-/* Hero 移动端 */
+/* Hero 移动端 — 降级为纯色背景，避免视频卡顿和流量消耗 */
 @media (max-width: 768px) {
   .hero {
     min-height: 100svh;
+    background: rgb(25, 70, 60);
+  }
+
+  .hero__video,
+  .hero__overlay {
+    display: none;
+  }
+
+  .hero__fade--top {
+    height: 100px;
+    background: linear-gradient(to bottom, rgb(18, 46, 38), transparent);
+  }
+
+  .hero__fade--bottom {
+    height: 100px;
+    background: linear-gradient(to top, rgb(25, 70, 60), transparent);
   }
 
   .hero__logo {
     width: 60px;
     height: 60px;
     font-size: 1.5rem;
-  }
-
-  .hero__fade--top,
-  .hero__fade--bottom {
-    height: 120px;
   }
 }
 
