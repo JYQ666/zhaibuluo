@@ -889,21 +889,58 @@ p {
 
 /* Footer 移动端 */
 @media (max-width: 768px) {
+  .footer {
+    padding: var(--space-lg) 0 var(--space-xl);
+  }
+  
   .footer__inner {
-    flex-direction: column-reverse;
-    text-align: center;
+    flex-direction: column;
+    gap: var(--space-lg);
   }
   
   .footer__brand {
     text-align: center;
+    order: 2;
   }
   
   .footer__logo {
     margin: 0 auto var(--space-sm);
+    width: 40px;
+    height: 40px;
+  }
+  
+  .footer__name {
+    font-size: 1.1rem;
   }
   
   .footer__slogan {
     margin: 0 auto;
+    font-size: 0.85rem;
+  }
+  
+  .footer__contact {
+    order: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-md);
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+  }
+  
+  .footer__qrcode {
+    width: 140px;
+    height: 140px;
+    margin-bottom: var(--space-sm);
+  }
+  
+  .footer__label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 1;
+    letter-spacing: 0.02em;
   }
 }
 

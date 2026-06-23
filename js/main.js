@@ -371,7 +371,7 @@ function renderCategories() {
         </div>
         <div class="community__card-info">
           <div class="community__card-name">${escapeHtml(c.name)}</div>
-          <div class="community__card-count">${caseCount} 个案例</div>
+          <div class="community__card-count">${caseCount} 张效果图</div>
         </div>
       </div>
     `;
