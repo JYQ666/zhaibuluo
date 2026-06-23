@@ -1,3 +1,7 @@
 impeccable-main/
 impeccable-temp/
 .git/
+
+tools/
+*.zip
+*.tar

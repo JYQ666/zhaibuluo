@@ -137,7 +137,7 @@ function renderHero() {
   
   hero.innerHTML = `
     <video class="hero__video" autoplay loop muted playsinline preload="auto" poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-      <source src="videos/hero.mp4" type="video/mp4">
+      <source src="videos/hero_h264.mp4" type="video/mp4">
     </video>
     <div class="hero__overlay"></div>
     <div class="hero__fade hero__fade--top"></div>
