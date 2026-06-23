@@ -640,14 +640,6 @@ p {
   color: var(--color-accent-rgb);
 }
 
-.community__card--small .community__card-info {
-  padding: var(--space-md) 0;
-}
-
-.community__card--small .community__card-name {
-  font-size: 1rem;
-}
-
 .community__empty {
   text-align: center;
   padding: var(--space-xl);

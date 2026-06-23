@@ -340,7 +340,23 @@ function renderCategories() {
   const section = document.getElementById('community');
   if (!section || !appData) return;
   
-  const categories = appData.categories || [];
+  // 只展示有案例的类别
+  const categories = (appData.categories || []).filter(c => c.cases.length > 0);
+  
+  if (categories.length === 0) {
+    section.innerHTML = `
+      <div class="container">
+        <div class="community__header reveal">
+          <div class="community__chapter">按柜体浏览</div>
+          <h2 class="community__title">找到您需要的柜体类型</h2>
+        </div>
+        <div class="community__grid">
+          <div class="community__empty">案例正在筹备中，敬请期待</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
   
   const cards = categories.map(c => {
     const caseCount = c.cases.length;
@@ -348,13 +364,11 @@ function renderCategories() {
     const representativeImage = c.cases[0]?.images[0] || '';
     
     return `
-      <div class="community__card ${isLarge ? 'community__card--large' : ''} ${!representativeImage ? 'community__card--small' : ''}" 
+      <div class="community__card ${isLarge ? 'community__card--large' : ''}" 
            data-category-id="${escapeHtml(c.id)}">
-        ${representativeImage ? `
-          <div class="community__card-image">
-            <img src="${escapeHtml(representativeImage)}" alt="${escapeHtml(c.name)}" loading="lazy" onerror="this.parentElement.style.display='none'">
-          </div>
-        ` : ''}
+        <div class="community__card-image">
+          <img src="${escapeHtml(representativeImage)}" alt="${escapeHtml(c.name)}" loading="lazy" onerror="this.parentElement.style.display='none'">
+        </div>
         <div class="community__card-info">
           <div class="community__card-name">${escapeHtml(c.name)}</div>
           <div class="community__card-count">${caseCount} 个案例</div>
