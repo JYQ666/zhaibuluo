@@ -18,48 +18,35 @@ let lightboxState = {
 let heroCanvasAnimation = null;
 
 // ============================================
-// Hero Canvas 粒子动画（暖铜色光尘）
+// Hero Canvas 流体动画
 // ============================================
-class HeroParticleAnimation {
+class HeroFluidAnimation {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
-    this.particles = [];
+    this.blobs = [];
     this.animationId = null;
     this.isRunning = false;
-
-    // 粒子配置
-    this.config = {
-      count: 60,
-      minSize: 1,
-      maxSize: 3,
-      minSpeed: 0.15,
-      maxSpeed: 0.4,
-      connectionDistance: 150,
-      connectionOpacity: 0.06,
-      colors: [
-        'rgba(190, 120, 65, 0.6)',
-        'rgba(210, 150, 90, 0.5)',
-        'rgba(255, 200, 130, 0.4)',
-        'rgba(170, 100, 50, 0.5)',
-      ],
-      glowColors: [
-        'rgba(190, 120, 65, 0.15)',
-        'rgba(255, 200, 130, 0.1)',
-      ]
-    };
-
+    
+    // 暖铜色光斑配置
+    this.blobConfigs = [
+      { color: 'rgba(190, 120, 65, 0.15)', size: 300, speed: 0.3 },
+      { color: 'rgba(190, 120, 65, 0.1)', size: 400, speed: 0.2 },
+      { color: 'rgba(255, 200, 100, 0.08)', size: 250, speed: 0.4 },
+      { color: 'rgba(190, 120, 65, 0.12)', size: 350, speed: 0.25 },
+    ];
+    
     this.init();
   }
-
+  
   init() {
     this.resize();
-    this.createParticles();
+    this.createBlobs();
     this.start();
-
+    
     window.addEventListener('resize', () => this.resize());
   }
-
+  
   resize() {
     const dpr = window.devicePixelRatio || 1;
     this.canvas.width = window.innerWidth * dpr;
@@ -68,115 +55,66 @@ class HeroParticleAnimation {
     this.canvas.style.height = window.innerHeight + 'px';
     this.ctx.scale(dpr, dpr);
   }
-
-  createParticles() {
-    this.particles = [];
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    for (let i = 0; i < this.config.count; i++) {
-      this.particles.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * this.config.maxSpeed,
-        vy: (Math.random() - 0.5) * this.config.maxSpeed - 0.1, // 微向上飘
-        size: this.config.minSize + Math.random() * (this.config.maxSize - this.config.minSize),
-        color: this.config.colors[Math.floor(Math.random() * this.config.colors.length)],
-        phase: Math.random() * Math.PI * 2,
-        phaseSpeed: 0.005 + Math.random() * 0.01,
-        opacity: 0.3 + Math.random() * 0.7,
-      });
-    }
+  
+  createBlobs() {
+    this.blobs = this.blobConfigs.map(config => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      baseX: Math.random() * window.innerWidth,
+      baseY: Math.random() * window.innerHeight,
+      size: config.size,
+      color: config.color,
+      speed: config.speed,
+      phase: Math.random() * Math.PI * 2,
+      phaseY: Math.random() * Math.PI * 2
+    }));
   }
-
+  
   start() {
     if (this.isRunning) return;
     this.isRunning = true;
     this.animate();
   }
-
+  
   stop() {
     this.isRunning = false;
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
     }
   }
-
+  
   animate() {
     if (!this.isRunning) return;
-
-    const { ctx } = this;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
+    
+    const { ctx, canvas } = this;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
     // 清空画布（深墨绿背景）
     ctx.fillStyle = 'rgb(25, 70, 60)';
-    ctx.fillRect(0, 0, w, h);
-
-    // 绘制微妙的径向光晕（模拟环境光）
-    const ambientGradient = ctx.createRadialGradient(w * 0.5, h * 0.4, 0, w * 0.5, h * 0.4, w * 0.6);
-    ambientGradient.addColorStop(0, 'rgba(190, 120, 65, 0.04)');
-    ambientGradient.addColorStop(0.5, 'rgba(42, 107, 85, 0.03)');
-    ambientGradient.addColorStop(1, 'transparent');
-    ctx.fillStyle = ambientGradient;
-    ctx.fillRect(0, 0, w, h);
-
-    // 更新和绘制粒子
-    this.particles.forEach(p => {
-      // 正弦波微动
-      p.phase += p.phaseSpeed;
-      p.x += p.vx + Math.sin(p.phase) * 0.15;
-      p.y += p.vy + Math.cos(p.phase * 0.7) * 0.1;
-
-      // 边界循环
-      if (p.x < -20) p.x = w + 20;
-      if (p.x > w + 20) p.x = -20;
-      if (p.y < -20) p.y = h + 20;
-      if (p.y > h + 20) p.y = -20;
-
-      // 呼吸效果
-      const breathe = 0.7 + 0.3 * Math.sin(p.phase * 2);
-      const currentOpacity = p.opacity * breathe;
-
-      // 绘制光晕（大圈）
-      const glowSize = p.size * 6;
-      const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowSize);
-      glow.addColorStop(0, `rgba(190, 120, 65, ${currentOpacity * 0.15})`);
-      glow.addColorStop(1, 'transparent');
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, glowSize, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 绘制粒子核心
-      ctx.fillStyle = p.color.replace(/[\d.]+\)$/, `${currentOpacity})`);
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fill();
+    ctx.fillRect(0, 0, width, height);
+    
+    // 绘制光斑
+    this.blobs.forEach(blob => {
+      // 使用正弦波实现缓慢漂浮
+      blob.phase += 0.005 * blob.speed;
+      blob.phaseY += 0.003 * blob.speed;
+      
+      blob.x = blob.baseX + Math.sin(blob.phase) * 100;
+      blob.y = blob.baseY + Math.cos(blob.phaseY) * 80;
+      
+      // 创建径向渐变
+      const gradient = ctx.createRadialGradient(
+        blob.x, blob.y, 0,
+        blob.x, blob.y, blob.size
+      );
+      gradient.addColorStop(0, blob.color);
+      gradient.addColorStop(1, 'transparent');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
     });
-
-    // 绘制粒子之间的连线
-    const connDist = this.config.connectionDistance;
-    const connOpacity = this.config.connectionOpacity;
-
-    for (let i = 0; i < this.particles.length; i++) {
-      for (let j = i + 1; j < this.particles.length; j++) {
-        const dx = this.particles[i].x - this.particles[j].x;
-        const dy = this.particles[i].y - this.particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < connDist) {
-          const alpha = (1 - dist / connDist) * connOpacity;
-          ctx.strokeStyle = `rgba(190, 120, 65, ${alpha})`;
-          ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.moveTo(this.particles[i].x, this.particles[i].y);
-          ctx.lineTo(this.particles[j].x, this.particles[j].y);
-          ctx.stroke();
-        }
-      }
-    }
-
+    
     this.animationId = requestAnimationFrame(() => this.animate());
   }
 }
@@ -318,10 +256,10 @@ function renderHero() {
     </div>
   `;
   
-  // 启动 Canvas 粒子动画
+  // 启动 Canvas 流体动画
   const canvas = hero.querySelector('.hero__bg-canvas');
   if (canvas) {
-    heroCanvasAnimation = new HeroParticleAnimation(canvas);
+    heroCanvasAnimation = new HeroFluidAnimation(canvas);
   }
 }
 

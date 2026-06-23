@@ -1140,8 +1140,10 @@
     async function handleCaseImages(e) {
       const files = Array.from(e.target.files);
       for (const file of files) {
-        const dataUrl = await blobToDataUrl(file);
-        modalImages.push({ blob: file, dataUrl });
+        // 压缩图片（长边 1200px，JPEG 82% 质量）
+        const { blob: compressedBlob } = await compressImage(file);
+        const dataUrl = await blobToDataUrl(compressedBlob);
+        modalImages.push({ blob: compressedBlob, dataUrl });
       }
       renderCaseImagesPreview();
       e.target.value = '';
@@ -1188,10 +1190,9 @@
         cs.featured = featured;
         cs.images = modalImages.map((img, i) => {
           if (img.existingPath) return img.existingPath;
-          // 新图片用 UUID 命名，避免覆盖已有图片
-          const ext = img.blob.name?.split('.').pop() || img.blob.type.split('/')[1] || 'jpg';
+          // 压缩后统一为 JPEG
           const uniqueId = generateId('img').slice(-12);
-          const path = `images/${community.id}/${modalCaseId}/${uniqueId}.${ext}`;
+          const path = `images/${community.id}/${modalCaseId}/${uniqueId}.jpg`;
           pendingImages[path] = { blob: img.blob, dataUrl: img.dataUrl, saved: false };
           return path;
         });
@@ -1199,9 +1200,9 @@
         // Add new
         const caseId = generateId('case');
         const images = modalImages.map((img, i) => {
-          const ext = img.blob.name?.split('.').pop() || img.blob.type.split('/')[1] || 'jpg';
+          // 压缩后统一为 JPEG
           const uniqueId = generateId('img').slice(-12);
-          const path = `images/${community.id}/${caseId}/${uniqueId}.${ext}`;
+          const path = `images/${community.id}/${caseId}/${uniqueId}.jpg`;
           pendingImages[path] = { blob: img.blob, dataUrl: img.dataUrl, saved: false };
           return path;
         });
@@ -1274,6 +1275,49 @@
     // ============================================
     // Utils
     // ============================================
+    // ============================================
+    // Image compression (client-side)
+    // ============================================
+    const COMPRESS_MAX_SIZE = 1200; // 长边最大像素
+    const COMPRESS_QUALITY = 0.82;  // JPEG 质量
+
+    function compressImage(blob, maxSize = COMPRESS_MAX_SIZE, quality = COMPRESS_QUALITY) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          // 计算缩放后尺寸（长边不超过 maxSize）
+          if (width > height) {
+            if (width <= maxSize) { resolve({ blob, width, height }); return; }
+            height = Math.round(height * maxSize / width);
+            width = maxSize;
+          } else {
+            if (height <= maxSize) { resolve({ blob, width, height }); return; }
+            width = Math.round(width * maxSize / height);
+            height = maxSize;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            compressed => {
+              if (compressed) {
+                resolve({ blob: compressed, width, height });
+              } else {
+                resolve({ blob, width: img.naturalWidth, height: img.naturalHeight });
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+        img.onerror = reject;
+        img.src = URL.createObjectURL(blob);
+      });
+    }
+
     function blobToDataUrl(blob) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
