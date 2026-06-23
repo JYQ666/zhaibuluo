@@ -287,11 +287,14 @@ p {
   50% { transform: translateX(-50%) translateY(10px); }
 }
 
-/* Hero 移动端 — 降级为纯色背景，避免视频卡顿和流量消耗 */
+/* Hero 移动端 — 渐变背景替代视频，保持层次感与品牌温度 */
 @media (max-width: 768px) {
   .hero {
     min-height: 100svh;
-    background: rgb(25, 70, 60);
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(45, 100, 80, 0.6) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 30% 70%, rgba(35, 85, 68, 0.4) 0%, transparent 60%),
+      linear-gradient(175deg, rgb(18, 46, 38) 0%, rgb(22, 58, 46) 40%, rgb(28, 72, 56) 100%);
   }
 
   .hero__video,
@@ -300,19 +303,30 @@ p {
   }
 
   .hero__fade--top {
-    height: 100px;
+    height: 80px;
     background: linear-gradient(to bottom, rgb(18, 46, 38), transparent);
   }
 
   .hero__fade--bottom {
-    height: 100px;
+    height: 80px;
     background: linear-gradient(to top, rgb(25, 70, 60), transparent);
   }
 
   .hero__logo {
-    width: 60px;
-    height: 60px;
-    font-size: 1.5rem;
+    width: 56px;
+    height: 56px;
+    font-size: 1.4rem;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+  }
+
+  .hero__title {
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
+    text-shadow: 0 1px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero__subtitle {
+    font-size: clamp(0.9rem, 3.5vw, 1.05rem);
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
   }
 }
 
