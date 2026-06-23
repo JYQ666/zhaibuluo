@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zhaibuluo",
+  "compatibility_date": "2026-06-23",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": ".",
+    "exclude": [
+      "node_modules/**",
+      "tools/**",
+      ".git/**",
+      ".trae-cn/**",
+      "*.ps1",
+      "*.md"
+    ]
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
