@@ -1,10 +1,10 @@
 {
   "brand": {
-    "logo": "images/brand/logo.png",
+    "logo": "images/brand/logo.jpg",
     "name": "宅部落全屋定制",
     "slogan": "享品质生活就选宅部落"
   },
-  "wechat_qrcode": "",
+  "wechat_qrcode": "images/brand/wechat-qrcode.jpg",
   "categories": [
     {
       "id": "category-cabinet",
@@ -15,18 +15,18 @@
           "title": "橱柜汇总",
           "featured": false,
           "images": [
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/887af8d1226c.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/4d35c158c73b.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/bbbde31c811e.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/2041367ced5b.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/4c48acf41b1f.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/4187668e04b5.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/c47702e42355.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/df80bc987b50.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/38d65096018f.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/b6a1d9c8c8bc.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/5f56cf8fb297.JPG",
-            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/3f5431139eee.JPG"
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/c2b0884a2f33.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/816ce728361f.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/426b9316396f.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/7087670efb41.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/7f054218296e.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/28f47abaef31.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/f7ca561293ce.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/6326a62c70b5.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/5991ac2195b1.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/707d9481ad86.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/37c76dc34888.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/2c8ca8e21f2e.jpg"
           ]
         }
       ]
@@ -34,17 +34,82 @@
     {
       "id": "category-tv",
       "name": "电视柜",
-      "cases": []
+      "cases": [
+        {
+          "id": "case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3",
+          "title": "电视柜汇总",
+          "featured": false,
+          "images": [
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/0e3b59ba493d.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/27a6dc5933d8.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/3587839e168c.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/2263c6e0a360.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/d30d53f14f48.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/847c8f96b5a2.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/608098facbae.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/733722c42820.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/afbf8233f001.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/267ec83cd872.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/11313b386d69.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/4ccaea0f264a.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/5ab951d9c46a.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/ccdf9482969a.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/479b359a4ec6.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/ab87ee239bfc.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "category-wine",
       "name": "酒柜",
-      "cases": []
+      "cases": [
+        {
+          "id": "case-172db4e5-2bef-421d-ac32-76fa4769a05d",
+          "title": "酒柜汇总",
+          "featured": true,
+          "images": [
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/f96a916546dc.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/0563c0a9469e.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/5c449173d9af.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/fcd2e11326f7.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/1d42a8d2fa91.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/edbcb4e35346.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/ace2ee0eb3e2.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/e3d4710f6e28.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/79e43c73a5d8.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/2a994d2392b5.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/c4717475bc8a.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/2d2336c8bee0.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/b364e7dc4852.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/ba860e84c168.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/405f8286e854.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/d0cde2162727.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/515a5a39d2c4.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/2a645372a626.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "category-wardrobe",
       "name": "衣柜",
-      "cases": []
+      "cases": [
+        {
+          "id": "case-46679091-7a24-4781-964f-adddb8b9f1e7",
+          "title": "衣柜汇总",
+          "featured": false,
+          "images": [
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/c0d491cbc4b1.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/0a06d9648f76.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/b327d6187026.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/77bfb2fdb52a.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/8016a8f2cbe8.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/e3b9d4ca7ee5.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/33f4958f8243.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "category-bookcase",
