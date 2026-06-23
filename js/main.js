@@ -495,11 +495,17 @@ function renderFooter() {
           <div class="footer__name">${escapeHtml(brand.name)}</div>
           <p class="footer__slogan">${escapeHtml(brand.slogan)}</p>
         </div>
+        <div class="footer__divider"></div>
         <div class="footer__contact">
           <div class="footer__qrcode">
-            ${wechat_qrcode ? `<img src="${escapeHtml(wechat_qrcode)}" alt="微信二维码" onerror="this.style.display='none'">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:0.8rem;">二维码</div>'}
+            ${wechat_qrcode ? `<img src="${escapeHtml(wechat_qrcode)}" alt="微信二维码" onerror="this.style.display='none'">` : '<div class="footer__qrcode-placeholder">二维码</div>'}
           </div>
-          <div class="footer__label">扫码添加微信</div>
+          <div class="footer__cta">
+            <svg class="footer__cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+            <span>扫码添加微信</span>
+          </div>
         </div>
       </div>
     </div>
