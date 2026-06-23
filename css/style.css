@@ -900,7 +900,7 @@ p {
   
   .footer__brand {
     text-align: center;
-    order: 2;
+    order: 1;
   }
   
   .footer__logo {
@@ -919,7 +919,7 @@ p {
   }
   
   .footer__contact {
-    order: 1;
+    order: 2;
     width: 100%;
     display: flex;
     flex-direction: column;
