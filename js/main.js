@@ -206,7 +206,7 @@ function renderFeatured() {
   featured.innerHTML = `
     <div class="featured__header reveal">
       <div class="featured__chapter">精选案例</div>
-      <h2 class="featured__title">空间改造的艺术</h2>
+      <h2 class="featured__title">我们的作品</h2>
     </div>
     <div class="featured__track-wrapper">
       <div class="featured__track">
@@ -227,9 +227,6 @@ function renderFeatured() {
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </button>
-    </div>
-    <div class="featured__progress" role="slider" aria-label="案例进度" tabindex="0">
-      <div class="featured__progress-bar"></div>
     </div>
   `;
   
@@ -442,7 +439,6 @@ function initFeaturedCarousel(totalSlides) {
   const prevBtn = document.querySelector('.featured__arrow--prev');
   const nextBtn = document.querySelector('.featured__arrow--next');
   const slides = document.querySelectorAll('.featured__slide');
-  const progressBar = document.querySelector('.featured__progress-bar');
   
   const hasGSAP = typeof gsap !== 'undefined';
   
@@ -485,16 +481,6 @@ function initFeaturedCarousel(totalSlides) {
         }
       }
     });
-    
-    // 更新进度条
-    if (progressBar) {
-      const progress = (currentIndex + 1) / totalSlides * 100;
-      if (hasGSAP) {
-        gsap.to(progressBar, { width: `${progress}%`, duration: 0.3, ease: 'power2.out' });
-      } else {
-        progressBar.style.width = `${progress}%`;
-      }
-    }
   }
   
   // 绑定按钮事件
@@ -544,48 +530,6 @@ function initFeaturedCarousel(totalSlides) {
       }
     }
   }, { passive: true });
-  
-  // 进度条拖拽（spec: 底部进度条拖拽）
-  const progressTrack = document.querySelector('.featured__progress');
-  if (progressTrack) {
-    let isDragging = false;
-    
-    const handleProgressDrag = (clientX) => {
-      const rect = progressTrack.getBoundingClientRect();
-      const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-      const newIndex = Math.round(ratio * (totalSlides - 1));
-      if (newIndex !== currentIndex) {
-        goToSlide(newIndex);
-      }
-    };
-    
-    progressTrack.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      handleProgressDrag(e.clientX);
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-      if (isDragging) handleProgressDrag(e.clientX);
-    });
-    
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-    });
-    
-    // 触摸拖拽
-    progressTrack.addEventListener('touchstart', (e) => {
-      isDragging = true;
-      handleProgressDrag(e.touches[0].clientX);
-    }, { passive: true });
-    
-    progressTrack.addEventListener('touchmove', (e) => {
-      if (isDragging) handleProgressDrag(e.touches[0].clientX);
-    }, { passive: true });
-    
-    progressTrack.addEventListener('touchend', () => {
-      isDragging = false;
-    }, { passive: true });
-  }
   
   // 点击图片进入灯箱
   document.querySelectorAll('.featured__image').forEach((imgContainer, index) => {

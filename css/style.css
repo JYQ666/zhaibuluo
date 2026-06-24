@@ -383,8 +383,8 @@ p {
 .featured__slide {
   flex: 0 0 100%;
   width: 100%;
-  height: 100vh;
-  min-height: 600px;
+  height: 70vh;
+  min-height: 500px;
   display: flex;
   position: relative;
 }
@@ -499,44 +499,12 @@ p {
   height: 20px;
 }
 
-/* 进度条（可拖拽） */
-.featured__progress {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  height: 3px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 2px;
-  cursor: pointer;
-  position: relative;
-  padding: var(--space-xs) 0;
-}
-
-.featured__progress::before {
-  content: '';
-  position: absolute;
-  inset: -8px 0;
-}
-
-.featured__progress-bar {
-  height: 100%;
-  width: 0;
-  background: var(--color-accent);
-  border-radius: 2px;
-  transition: width 0.3s var(--ease-out-expo);
-}
-
-.featured__progress:hover .featured__progress-bar {
-  background: var(--color-accent-rgb);
-  filter: brightness(1.1);
-}
-
 /* Featured 移动端 — 图片占满全屏，信息浮在底部（半透明黑底白字） */
 @media (max-width: 768px) {
   .featured__slide {
     flex-direction: column;
-    height: 100svh;
-    min-height: 100svh;
+    height: 70svh;
+    min-height: 420px;
   }
   
   .featured__image {
