@@ -192,8 +192,6 @@ function renderFeatured() {
           <div class="featured__meta">
             <span>${escapeHtml(item.case.title)}</span>
           </div>
-          <p class="featured__highlight">精心定制，每一寸空间都恰到好处。</p>
-          <div class="featured__count">${item.case.images.length} 张效果图</div>
         </div>
       </div>
     `;
@@ -212,21 +210,21 @@ function renderFeatured() {
       <div class="featured__track">
         ${slides}
       </div>
-    </div>
-    <div class="featured__nav">
-      <button class="featured__arrow featured__arrow--prev" aria-label="上一个">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-      </button>
-      <div class="featured__dots">
-        ${dots}
+      <div class="featured__nav">
+        <button class="featured__arrow featured__arrow--prev" aria-label="上一个">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <div class="featured__dots">
+          ${dots}
+        </div>
+        <button class="featured__arrow featured__arrow--next" aria-label="下一个">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
       </div>
-      <button class="featured__arrow featured__arrow--next" aria-label="下一个">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
-      </button>
     </div>
   `;
   
