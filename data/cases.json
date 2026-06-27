@@ -27,6 +27,11 @@
             "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/707d9481ad86.jpg",
             "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/37c76dc34888.jpg",
             "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/2c8ca8e21f2e.jpg"
+          ],
+          "featuredImages": [
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/37c76dc34888.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/6326a62c70b5.jpg",
+            "images/category-cabinet/case-5e9e7141-be63-4e49-b365-4a4acc3fe8fb/7087670efb41.jpg"
           ]
         }
       ]
@@ -56,6 +61,11 @@
             "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/ccdf9482969a.jpg",
             "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/479b359a4ec6.jpg",
             "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/ab87ee239bfc.jpg"
+          ],
+          "featuredImages": [
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/27a6dc5933d8.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/ab87ee239bfc.jpg",
+            "images/category-tv/case-b43c0ad7-30c6-409f-9a86-7fe7f7337aa3/4ccaea0f264a.jpg"
           ]
         }
       ]
@@ -69,9 +79,13 @@
           "title": "酒柜汇总",
           "featured": false,
           "featuredImages": [
-            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/f96a916546dc.jpg",
-            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/0563c0a9469e.jpg",
-            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/5c449173d9af.jpg"
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/2a645372a626.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/ace2ee0eb3e2.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/2d2336c8bee0.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/2a994d2392b5.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/fcd2e11326f7.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/5c449173d9af.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/f96a916546dc.jpg"
           ],
           "images": [
             "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/f96a916546dc.jpg",
@@ -90,7 +104,6 @@
             "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/ba860e84c168.jpg",
             "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/405f8286e854.jpg",
             "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/d0cde2162727.jpg",
-            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/515a5a39d2c4.jpg",
             "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/2a645372a626.jpg"
           ]
         }
@@ -105,13 +118,19 @@
           "title": "衣柜汇总",
           "featured": false,
           "images": [
-            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/c0d491cbc4b1.jpg",
-            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/0a06d9648f76.jpg",
-            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/b327d6187026.jpg",
-            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/77bfb2fdb52a.jpg",
-            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/8016a8f2cbe8.jpg",
-            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/e3b9d4ca7ee5.jpg",
-            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/33f4958f8243.jpg"
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/a5aee937e6ac.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/ef16e78f34c8.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/7d8b3beb5f3e.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/a63e125e9abe.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/2ec6cce8f0d3.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/9aa2bcae0ff4.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/6afb51e14b6c.jpg"
+          ],
+          "featuredImages": [
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/a5aee937e6ac.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/ef16e78f34c8.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/2ec6cce8f0d3.jpg",
+            "images/category-wardrobe/case-46679091-7a24-4781-964f-adddb8b9f1e7/7d8b3beb5f3e.jpg"
           ]
         }
       ]
