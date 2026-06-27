@@ -67,7 +67,12 @@
         {
           "id": "case-172db4e5-2bef-421d-ac32-76fa4769a05d",
           "title": "酒柜汇总",
-          "featured": true,
+          "featured": false,
+          "featuredImages": [
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/f96a916546dc.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/0563c0a9469e.jpg",
+            "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/5c449173d9af.jpg"
+          ],
           "images": [
             "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/f96a916546dc.jpg",
             "images/category-wine/case-172db4e5-2bef-421d-ac32-76fa4769a05d/0563c0a9469e.jpg",

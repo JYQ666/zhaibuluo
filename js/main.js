@@ -185,7 +185,7 @@ function renderFeatured() {
     return `
       <div class="featured__slide ${index === 0 ? 'is-active' : ''}" data-index="${index}">
         <div class="featured__image">
-          <img src="${escapeHtml(item.case.images[0])}" alt="${escapeHtml(item.case.title)}" loading="lazy" onerror="this.style.opacity=0.3">
+          <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.case.title)}" loading="lazy" onerror="this.style.opacity=0.3">
         </div>
         <div class="featured__info">
           <h3 class="featured__community">${escapeHtml(category?.name || '')}</h3>
@@ -531,12 +531,14 @@ function initFeaturedCarousel(totalSlides) {
     }
   }, { passive: true });
   
-  // 点击图片进入灯箱
+  // 点击图片进入灯箱（定位到当前精选图片）
   document.querySelectorAll('.featured__image').forEach((imgContainer, index) => {
     imgContainer.addEventListener('click', () => {
       const featuredCases = getFeaturedCases();
       const images = featuredCases[index]?.case.images || [];
-      openLightbox(images, 0);
+      const currentImage = featuredCases[index]?.image;
+      const startIndex = images.indexOf(currentImage);
+      openLightbox(images, Math.max(0, startIndex));
     });
   });
   
@@ -1008,8 +1010,14 @@ function getFeaturedCases() {
   const featured = [];
   appData.categories.forEach(category => {
     category.cases.forEach(c => {
-      if (c.featured) {
-        featured.push({ category, case: c });
+      // 支持新的 featuredImages 数组或旧的 featured 标记
+      if (c.featuredImages && c.featuredImages.length > 0) {
+        c.featuredImages.forEach(imgPath => {
+          featured.push({ category, case: c, image: imgPath });
+        });
+      } else if (c.featured) {
+        // 兼容旧数据：如果没有 featuredImages 但有 featured 标记，使用第一张图片
+        featured.push({ category, case: c, image: c.images[0] });
       }
     });
   });
@@ -1018,13 +1026,7 @@ function getFeaturedCases() {
 
 function getFeaturedImages() {
   const featuredCases = getFeaturedCases();
-  const images = [];
-  featuredCases.forEach(item => {
-    if (item.case.images[0]) {
-      images.push(item.case.images[0]);
-    }
-  });
-  return images;
+  return featuredCases.map(item => item.image);
 }
 
 function findCategoryByCase(caseId) {
